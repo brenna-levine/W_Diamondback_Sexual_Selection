@@ -561,11 +561,11 @@ Starting with the female file, I automated a subsetting of the female file to cr
 ```{r}
 #create a dataframe (c_f) of years for which there are at least 3 female data points
 a_f <- rle(sort(female_opp$Year))
-b_f <- data.frame(number=a_f$values, n=a_f$lengths)
+b_f <- data.frame(year=a_f$values, n=a_f$lengths)
 c_f <- subset(b_f, n>'2') #subset those years that have more than 2 records
 
 #create a subset of the original female data set for each year with greater than 2 records
-for(i in c_f$number) { #for each year in the c_f data frame
+for(i in c_f$year) { #for each year in the c_f data frame
   
   assign(paste("f_", i, sep = ""), subset(female_opp, Year==i)) #create a subset of the original female data set and name it with an f (for female) and the year
   
@@ -577,7 +577,7 @@ For each year female dataframe, I calculated annual opportunity for sexual selec
 #create list of year data frames (these are the years with >2 records)
 df_list <- list(f_2003, f_2004, f_2005, f_2006, f_2007)
 
-#create empty data frame
+#create empty data frame called opp_sex_f
 opp_sex_f = NULL
 
 #use for loop to calculate variables for female Is for each data frame
@@ -592,7 +592,7 @@ for(i in df_list) { #for each data frame in the df_list
 }
 
 
-#combine the data frame containing years and number of data points with the data frame containing calculations so that we know what year corresponds wtih each value
+#combine the data frame containing years and number of data points for females with the data frame containing calculations so that we know what year corresponds wtih each value
 opp_sex_f <- cbind(c_f, opp_sex_f)
 
 ####rename columns in opp_sel
@@ -607,18 +607,20 @@ opp_sex_f
 
 For each female year dataframe, I calculated annual opportunity for selection (I).
 ```{r}
-#create empty data frame
+#create empty data frame called opp_sel_f
 opp_sel_f = NULL
 
-for(i in df_list) { #for each data frame
+for(i in df_list) { #for each data frame in the previously created df_list
+  
   variance <- var(i$RS) #calculate the variance in RS
   x <- mean(i$RS) #calculate the mean in RS
   meansq <- x^2 #calculate the squared mean of RS
   rel_var <- variance/meansq #calculate opportunity for selection
   opp_sel_f = rbind(opp_sel_f, data.frame(variance, x, meansq, rel_var)) #add all variables to the empty data frame
+  
 }
 
-#combine the data frame containing years and number of data points with the data frame containing calculations
+#combine the data frame containing years and number of data points for females with the data frame containing calculations so we know which years correspond with which values
 opp_sel_f <- cbind(c_f, opp_sel_f)
 
 #rename columns in opp_sel
@@ -628,10 +630,13 @@ opp_sel_f <- rename(opp_sel_f, c("number"= "Year (f)", "n"="N (f)", "variance"="
 opp_sel_f
 ```
 
-Finally, I calculated mean opportunities for sexual selection and selection for females.
+I calculated mean opportunities for sexual selection and selection for females.
 ```{r}
 mean_Is_f <- mean(opp_sex_f$`Is (f)`) #mean opportunity for sexual selection
 mean_I_f <- mean(opp_sel_f$`I (f)`) #mean opportunity for selection
+
+#cat the means so we know what they are
+cat("Female Mean Is: ", mean_Is_f, "\n", "Female Mean I: ", mean_I_f, "\n\n")
 ```
 
 
@@ -639,32 +644,36 @@ For the male file, I automated a subsetting of the male file to create subsets f
 ```{r}
 #create a dataframe (c_m) of years for which there are at least 3 male data points
 a_m <- rle(sort(male_opp$Year))
-b_m <- data.frame(number=a_m$values, n=a_m$lengths)
-c_m <- subset(b_m, n>'2')
+b_m <- data.frame(year=a_m$values, n=a_m$lengths)
+c_m <- subset(b_m, n>'2') #subset the male data frame for only years with >2 records
 
 #for each year in the c_m data frame, create a subset of the original male data set
-for(i in c_m$number) {
-  assign(paste("m_", i, sep = ""), subset(male_opp, Year==i))
+for(i in c_m$year) { #for each year with more than 2 records
+  
+  assign(paste("m_", i, sep = ""), subset(male_opp, Year==i)) #create a subset for each year for males, and name with an m and the year
+  
 }
 ```
 
-Then, for each male dataframe, I calculated annual opportunity for sexual selection.
+Then, for each male data frame, I calculated annual opportunity for sexual selection (Is).
 ```{r}
-#create list of year data frames
+#create list of year data frames (note: overwriting the female df_list)
 df_list <- list(m_2003, m_2005, m_2006, m_2007)
 
-#create empty data frame
+#create empty data frame called opp_sex_m
 opp_sex_m = NULL
 
-for(i in df_list) { #for each data frame
+for(i in df_list) { #for each year data frame in the df_list
+  
   variance <- var(i$MS) #calculate the variance in MS
   x <- mean(i$MS) #calculate the mean in MS
   meansq <- x^2 #calculate the squared mean of MS
   rel_var <- variance/meansq #calculate opportunity for sexual selection
   opp_sex_m = rbind(opp_sex_m, data.frame(variance, x, meansq, rel_var)) #add all variables to the empty data frame
+  
 }
 
-#combine the data frame containing years and number of data points with the data frame containing calculations
+#combine the data frame containing years and number of data points with the data frame containing calculations so we know which years correspond with which values
 opp_sex_m <- cbind(c_m, opp_sex_m)
 
 #rename columns in opp_sel
@@ -679,15 +688,17 @@ Then, for each male dataframe, I calculated annual opportunity for selection.
 #create empty data frame
 opp_sel_m = NULL
 
-for(i in df_list) { #for each data frame
+for(i in df_list) { #for each data frame in the df_list
+  
   variance <- var(i$RS) #calculate the variance in RS
   x <- mean(i$RS) #calculate the mean in RS
   meansq <- x^2 #calculate the squared mean of RS
   rel_var <- variance/meansq #calculate opportunity for selection
   opp_sel_m = rbind(opp_sel_m, data.frame(variance, x, meansq, rel_var)) #add all variables to the empty data frame
+  
 }
 
-#combine the data frame containing years and number of data points with the data frame containing calculations
+#combine the data frame containing years and number of data points with the data frame containing calculations so we know which years correspond with which values
 opp_sel_m <- cbind(c_m, opp_sel_m)
 
 #rename columns in opp_sel
@@ -701,21 +712,25 @@ Finally, I calculated mean opportunities for sexual selection and selection for 
 ```{r}
 mean_Is_m <- mean(opp_sex_m$`Is (m)`) #mean opportunity for sexual selection
 mean_I_m <- mean(opp_sel_m$`I (m)`) #mean opportunity for selection
+
+#cat the means so we know what they are
+cat("Male Mean Is: ", mean_Is_m, "\n", "Male Mean I: ", mean_I_m, "\n\n")
+
 ```
 
 
-I compared average male and female Is.
+I statistically compared average male and female Is with an F-ratio test.
 ```{r}
-## df for females calculated as 1 - average number of records per year
-df_f <- mean(c_f$n)-1
-df_f <- round(df_f, digits = 0)
+## degrees of freedom for females calculated as 1 - average number of records per year
+df_f <- mean(c_f$n)-1 #number of records per year are still stored in the c_f data frame
+df_f <- round(df_f, digits = 0) #round to the nearest integer
 
-## df for males calculated as 1 - average number of records per year
-df_m <- mean(c_m$n)-1
-df_m <- round(df_m, digits = 0)
+## degrees of freedom for males calculated as 1 - average number of records per year
+df_m <- mean(c_m$n)-1  #number of records per year are still stored in c_m data frame
+df_m <- round(df_m, digits = 0) #round to the nearest integer
 
-#calculate F-ratio and critical value for Is
-if(mean_Is_f > mean_Is_m){ #if mean female Is is greater than male Is
+#calculate F-ratio and critical value for Is, paying attention to whether males or females have the greater Is value
+if(mean_Is_f > mean_Is_m){ #if mean female Is is greater than mean male Is
   
   crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
   f <- mean_Is_f/mean_Is_m #use female estimate as numerator in f ratio
