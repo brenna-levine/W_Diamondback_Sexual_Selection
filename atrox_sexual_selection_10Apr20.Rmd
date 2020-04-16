@@ -1,9 +1,9 @@
 ---
 title: "Crotalus atrox Sexual Selection Analysis - 14Apr20"
 output:
-  word_document: default
-  pdf_document: default
   html_notebook: default
+  pdf_document: default
+  word_document: default
 ---
 
 ###################################################################
@@ -599,7 +599,7 @@ opp_sex_f <- cbind(c_f, opp_sex_f)
 #load necessary package to do this
 library(plyr)
 #rename columns of data frame
-opp_sex_f <- rename(opp_sex_f, c("number"= "Year (f)", "n"="N (f)", "variance"="Variance MS (f)", "x"="Mean MS (f)", "meansq" = "Squared Mean MS (f)", "rel_var" = "Is (f)"))
+opp_sex_f <- rename(opp_sex_f, c("year"= "Year", "n"="N (f)", "variance"="Variance MS (f)", "x"="Mean MS (f)", "meansq" = "Squared Mean MS (f)", "rel_var" = "Is (f)"))
 
 #view new data frame
 opp_sex_f
@@ -624,7 +624,7 @@ for(i in df_list) { #for each data frame in the previously created df_list
 opp_sel_f <- cbind(c_f, opp_sel_f)
 
 #rename columns in opp_sel
-opp_sel_f <- rename(opp_sel_f, c("number"= "Year (f)", "n"="N (f)", "variance"="Variance RS (f)", "x"="Mean RS (f)", "meansq" = "Squared Mean RS (f)", "rel_var" = "I (f)"))
+opp_sel_f <- rename(opp_sel_f, c("year"= "Year", "n"="N (f)", "variance"="Variance RS (f)", "x"="Mean RS (f)", "meansq" = "Squared Mean RS (f)", "rel_var" = "I (f)"))
 
 #view new data frame
 opp_sel_f
@@ -677,7 +677,7 @@ for(i in df_list) { #for each year data frame in the df_list
 opp_sex_m <- cbind(c_m, opp_sex_m)
 
 #rename columns in opp_sel
-opp_sex_m <- rename(opp_sex_m, c("number"= "Year (m)", "n"="N (m)", "variance"="Variance MS (m)", "x"="Mean MS (m)", "meansq" = "Squared Mean MS (m)", "rel_var" = "Is (m)"))
+opp_sex_m <- rename(opp_sex_m, c("year"= "Year", "n"="N (m)", "variance"="Variance MS (m)", "x"="Mean MS (m)", "meansq" = "Squared Mean MS (m)", "rel_var" = "Is (m)"))
 
 #view new data frame
 opp_sex_m
@@ -702,7 +702,7 @@ for(i in df_list) { #for each data frame in the df_list
 opp_sel_m <- cbind(c_m, opp_sel_m)
 
 #rename columns in opp_sel
-opp_sel_m <- rename(opp_sel_m, c("number"= "Year (m)", "n"="N (m)", "variance"="Variance RS (m)", "x"="Mean RS (m)", "meansq" = "Squared Mean RS (m)", "rel_var" = "I (m)"))
+opp_sel_m <- rename(opp_sel_m, c("year"= "Year", "n"="N (m)", "variance"="Variance RS (m)", "x"="Mean RS (m)", "meansq" = "Squared Mean RS (m)", "rel_var" = "I (m)"))
 
 #view new data frame
 opp_sel_m
@@ -717,6 +717,61 @@ mean_I_m <- mean(opp_sel_m$`I (m)`) #mean opportunity for selection
 cat("Male Mean Is: ", mean_Is_m, "\n", "Male Mean I: ", mean_I_m, "\n\n")
 
 ```
+
+I statistically compared yearly male and female Is with an F-ratio test.
+```{r}
+#create a merged data frame of yearly data that is present for both males and females
+opp_sex_merged <- merge(opp_sex_f, opp_sex_m, by.x = "Year") #merge the male and female opp_sex dataframes by year
+head(opp_sex_merged) #view the merged data frame to make sure the merge worked correctly
+
+#write a function to compare male and female Is for each year
+func <- function(x, output) { #function to be applied to each row
+  
+  df_f <- x["N (f)"] - 1 #degrees of freedom for females = #females - 1
+  df_m <- x["N (m)"] - 1 #degrees of freedom for males = #males - 1
+  
+  if(x["Is (f)"] > x["Is (m)"]){ #if mean female Is is greater than mean male Is
+  
+        crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
+        f <- x["Is (f)"]/x["Is (m)"] #use female estimate as numerator in f ratio
+        cat("Note: For", x["Year"],", female Is value is numerator\n")
+  
+  } else { #otherwise
+  
+        crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in   calculation of critical value
+        f <- x["Is (m)"]/x["Is (f)"] #use male estimate as numerator in f ratio
+        cat("Note: For", x["Year"],", male Is value is numerator\n") #cat statement about numerator
+  
+  }
+  
+  #test whether male and female Is are significantly different
+  if(f > crit){ #if the f ratio is larger than the critical value
+  
+        cat("For", x["Year"], ", male and female Is are different (F > critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 2), "\n", "Male Is: ", round(x["Is (m)"], digits = 2), "\n", "F = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
+  
+  } else { #otherwise
+  
+        cat("For", x["Year"], ", male and female Is are not different (F > critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 2), "\n", "Male Is: ", round(x["Is (m)"], digits = 2), "\n", "F = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
+  
+  } 
+  
+  
+}
+
+apply(opp_sex_merged, 1, func)
+
+
+
+
+
+
+```
+
+
+
+
+
+
 
 
 I statistically compared average male and female Is with an F-ratio test.
@@ -734,13 +789,13 @@ if(mean_Is_f > mean_Is_m){ #if mean female Is is greater than mean male Is
   
   crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
   f <- mean_Is_f/mean_Is_m #use female estimate as numerator in f ratio
-  cat("Female Is value is numerator\n")
+  cat("Note: Female Is value is numerator\n")
   
 } else { #otherwise
   
   crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
   f <- mean_Is_m/mean_Is_f #use male estimate as numerator in f ratio
-  cat("Male Is value is numerator\n")
+  cat("Note: Male Is value is numerator\n")
   
 }
 
@@ -763,13 +818,13 @@ if(mean_I_f > mean_I_m){ #if mean female I is greater than male I
   
   crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
   f <- mean_I_f/mean_I_m #use female estimate as numerator in f ratio
-  cat("Female I value is numerator\n")
+  cat("Note: Female I value is numerator\n")
   
 } else { #otherwise
   
   crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
   f <- mean_I_m/mean_I_f #use male estimate as numerator in f ratio
-  cat("Male I value is numerator\n")
+  cat("Note: Male I value is numerator\n")
   
 }
 
@@ -786,18 +841,18 @@ if(f > crit){ #if the f ratio is larger than the critical value
 ```
 
 
+..........................................................................................
+..........................................................................................
 
-
-
-Finally, using the means for males and females of oppportunities for sexual selection and selection, I calculated the Jones index (s'max = Bss * sqrt(Is). See Jones (2009). 
+Finally, using the means for males and females of oppportunities for sexual selection and selection, I calculated the Jones index (s'max = Bss * sqrt(Is)). See Jones (2009). 
 
 I first calculated the Jones index for females.
 ```{r}
 #run glm with relative mating and reproductive success and extract coefficients
-c_f <- coef(glm(rel_off ~ rel_mates + years_breeding, data=female, family=gaussian))
+coef_f <- coef(glm(rel_off ~ rel_mates + years_breeding, data=female, family=gaussian))
 
-#extract Bss deom coefficients
-Bss_f <- as.numeric(c_f[2])
+#extract Bss from coefficients
+Bss_f <- as.numeric(coef_f[2])
 
 #calculate Jones index
 Jones_f <- Bss_f*sqrt(mean_Is_f)
@@ -809,10 +864,10 @@ cat("Female Standardized Bateman Gradient: ", Bss_f, "\n","Female Mean Opportuni
 Then, I calculated the Jones index for males.
 ```{r}
 #run glm with relative mating and reproductive success and extract coefficients
-c_m <- coef(glm(rel_off ~ rel_mates + years_breeding, data=male_nonzero, family=gaussian))
+coef_m <- coef(glm(rel_off ~ rel_mates + years_breeding, data=male_nonzero, family=gaussian))
 
-#extract Bss deom coefficients
-Bss_m <- as.numeric(c_m[2])
+#extract Bss from coefficients
+Bss_m <- as.numeric(coef_m[2])
 
 #calculate Jones index
 Jones_m <- Bss_m*sqrt(mean_Is_m)
