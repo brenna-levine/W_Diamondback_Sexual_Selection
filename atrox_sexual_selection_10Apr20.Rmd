@@ -718,14 +718,15 @@ cat("Male Mean Is: ", mean_Is_m, "\n", "Male Mean I: ", mean_I_m, "\n\n")
 
 ```
 
-I statistically compared yearly male and female Is with an F-ratio test.
+I statistically compared YEARLY male and female Is with an F-ratio test.
 ```{r}
 #create a merged data frame of yearly data that is present for both males and females
 opp_sex_merged <- merge(opp_sex_f, opp_sex_m, by.x = "Year") #merge the male and female opp_sex dataframes by year
 head(opp_sex_merged) #view the merged data frame to make sure the merge worked correctly
+cat("\n") #add a newline
 
 #write a function to compare male and female Is for each year
-func <- function(x, output) { #function to be applied to each row
+func_sex_comp <- function(x, output) { #function to be applied to each row
   
   df_f <- x["N (f)"] - 1 #degrees of freedom for females = #females - 1
   df_m <- x["N (m)"] - 1 #degrees of freedom for males = #males - 1
@@ -734,13 +735,13 @@ func <- function(x, output) { #function to be applied to each row
   
         crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
         f <- x["Is (f)"]/x["Is (m)"] #use female estimate as numerator in f ratio
-        cat("Note: For", x["Year"],", female Is value is numerator\n")
+        cat("Note: For", x["Year"],", female Is value is numerator.\n")
   
   } else { #otherwise
   
         crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in   calculation of critical value
         f <- x["Is (m)"]/x["Is (f)"] #use male estimate as numerator in f ratio
-        cat("Note: For", x["Year"],", male Is value is numerator\n") #cat statement about numerator
+        cat("Note: For", x["Year"],", male Is value is numerator.\n") #cat statement about numerator
   
   }
   
@@ -751,21 +752,62 @@ func <- function(x, output) { #function to be applied to each row
   
   } else { #otherwise
   
-        cat("For", x["Year"], ", male and female Is are not different (F > critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 2), "\n", "Male Is: ", round(x["Is (m)"], digits = 2), "\n", "F = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
+        cat("For", x["Year"], ", male and female Is are not different (F < critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 2), "\n", "Male Is: ", round(x["Is (m)"], digits = 2), "\n", "F = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
   
   } 
   
   
 }
 
-apply(opp_sex_merged, 1, func)
-
-
-
-
-
-
+apply(opp_sex_merged, 1, func_sex_comp)
 ```
+
+
+Then, I statistically compared YEARLY male and female I with an F-ratio test.
+```{r}
+#create a merged data frame of yearly data that is present for both males and females
+opp_sel_merged <- merge(opp_sel_f, opp_sel_m, by.x = "Year") #merge the male and female opp_sel dataframes by year
+head(opp_sel_merged) #view the merged data frame to make sure the merge worked correctly
+
+#write a function to compare male and female Is for each year
+func_sel_comp <- function(x, output) { #function to be applied to each row
+  
+  df_f <- x["N (f)"] - 1 #degrees of freedom for females = #females - 1
+  df_m <- x["N (m)"] - 1 #degrees of freedom for males = #males - 1
+  
+  if(x["I (f)"] > x["I (m)"]){ #if mean female Is is greater than mean male Is
+  
+        crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
+        f <- x["I (f)"]/x["I (m)"] #use female estimate as numerator in f ratio
+        cat("Note: For", x["Year"],", female I value is numerator.\n")
+  
+  } else { #otherwise
+  
+        crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in   calculation of critical value
+        f <- x["I (m)"]/x["I (f)"] #use male estimate as numerator in f ratio
+        cat("Note: For", x["Year"],", male I value is numerator.\n") #cat statement about numerator
+  
+  }
+  
+  #test whether male and female I are significantly different
+  if(f > crit){ #if the f ratio is larger than the critical value
+  
+        cat("For", x["Year"], ", male and female I are different (F > critical).", "\n", "Female I: ", round(x["I (f)"], digits = 2), "\n", "Male I: ", round(x["I (m)"], digits = 2), "\n", "F = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
+  
+  } else { #otherwise
+  
+        cat("For", x["Year"], ", male and female I are not different (F < critical).", "\n", "Female I: ", round(x["I (f)"], digits = 2), "\n", "Male I: ", round(x["I (m)"], digits = 2), "\n", "F = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
+  
+  } 
+  
+  
+}
+
+apply(opp_sel_merged, 1, func_sel_comp)
+```
+
+
+
 
 
 
@@ -789,24 +831,24 @@ if(mean_Is_f > mean_Is_m){ #if mean female Is is greater than mean male Is
   
   crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
   f <- mean_Is_f/mean_Is_m #use female estimate as numerator in f ratio
-  cat("Note: Female Is value is numerator\n")
+  cat("Note: Female Is value is numerator.\n\n")
   
 } else { #otherwise
   
   crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
   f <- mean_Is_m/mean_Is_f #use male estimate as numerator in f ratio
-  cat("Note: Male Is value is numerator\n")
+  cat("Note: Male Is value is numerator.\n\n")
   
 }
 
 #test whether male and female Is are significantly different
 if(f > crit){ #if the f ratio is larger than the critical value
   
-  cat("Mean male and female Is are different (F > critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", "\n", round(mean_Is_f, digits = 2), "\n") #cat these statements
+  cat("Mean male and female Is are different (F > critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", round(mean_Is_f, digits = 2), "\n", "F-Ratio = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
   
 } else { #otherwise
   
-  cat("Mean male and female Is are not different (F < critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", "\n", round(mean_Is_f, digits = 2), "\n" ) #cat these statements
+  cat("Mean male and female Is are not different (F < critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", round(mean_Is_f, digits = 2), "\n", "F-Ratio = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n" ) #cat these statements
   
 } 
 ```
@@ -818,24 +860,24 @@ if(mean_I_f > mean_I_m){ #if mean female I is greater than male I
   
   crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
   f <- mean_I_f/mean_I_m #use female estimate as numerator in f ratio
-  cat("Note: Female I value is numerator\n")
+  cat("Note: Female I value is numerator.\n\n")
   
 } else { #otherwise
   
   crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
   f <- mean_I_m/mean_I_f #use male estimate as numerator in f ratio
-  cat("Note: Male I value is numerator\n")
+  cat("Note: Male I value is numerator.\n\n")
   
 }
 
 #test whether male and female Is are significantly different
 if(f > crit){ #if the f ratio is larger than the critical value
   
-  cat("Mean male and female Is are different (F > critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", "\n", round(mean_Is_f, digits = 2), "\n") #cat these statements
+  cat("Mean male and female I are different (F > critical).", "\n", "Male I: ", round(mean_I_m, digits = 2), "\n", "Female I: ", round(mean_I_f, digits = 2), "\n", "F-Ratio = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
   
 } else { #otherwise
   
-  cat("Mean male and female Is are not different (F < critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", "\n", round(mean_Is_f, digits = 2), "\n" ) #cat these statements
+  cat("Mean male and female I are not different (F < critical).", "\n", "Male I: ", round(mean_I_m, digits = 2), "\n", "Female I: ", round(mean_I_f, digits = 2), "\n", "F-Ratio = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
   
 } 
 ```
