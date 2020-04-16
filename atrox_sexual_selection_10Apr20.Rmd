@@ -1,5 +1,5 @@
 ---
-title: "Crotalus atrox Sexual Selection Analysis - 14Apr20"
+title: "Crotalus atrox Sexual Selection Analysis - 16Apr20"
 output:
   html_notebook: default
   pdf_document: default
@@ -27,20 +27,20 @@ bateman <- read.csv("atrox_bateman_comparison_4feb20.csv")
 ```
 
 
-Next, I subset the data to a female set, a male set that included zero mating and reproductive success, and a male set that did not include zero mating and reproductive success. The reason for analyzing non-zero male data is that I (BAL) am worried about the natural dependency of reproductive success on mating success (if mating success = 0, reproductive success has to equal 0). This dependency will be particularly important for calculations of the Bateman gradient that include number of breeding years as a covariate. If number of mates is zero, number of breeding years will also be zero, and therefore we will be basically guaranteed to have a significant interaction between mating success and number of breeding years that will make it impossible to evaluate the effect of number of mates and number of breeding years without considering the interaction between these two. This differs from our copperhead Bateman paper, but given the long-term nature of this data set (with individuals mating over time in multiple years) as opposed to the short-term nature of the copperhead paper, I think it's necessary.
+Next, I subset the data to a female set, a male set that included zero mating and reproductive success, and a male set that did not include zero mating and reproductive success. The reason for analyzing non-zero male data is that I (BAL) was worried about the natural dependency of reproductive success on mating success (if mating success = 0, reproductive success has to equal 0). This dependency will be particularly important for calculations of the Bateman gradient that include number of breeding years as a covariate. If number of mates is zero, number of breeding years will also be zero, and therefore we will be basically guaranteed to have a significant interaction between mating success and number of breeding years that will make it impossible to evaluate the effect of number of mates and number of breeding years without considering the interaction between these two. This differs from Levine et al. (2015), but given the long-term nature of this data set (with individuals mating over time in multiple years) as opposed to the short-term nature of Levine et al. (2015), it's necessary.
 ```{r}
-##subset data
-#subset male data frmae and make new female data frame
+####subset data
+#subset data frame and make new female data frame
 female <- subset(bateman, sex=='f')
 
-#subset female data frame and make new male data frame
+#subset data frame and make new male data frame
 male <- subset(bateman, sex=='m')
 
 #subset new male data frame and make male data frame without zero values
 male_nonzero <- subset(male, mates > 0)
 ```
 
-Next, I plotted the relationships between mating success and reproductive success for the different data sets -- always an important step.
+Next, I plotted the relationships between mating success and reproductive success for the different data sets (always an important step).
 
 Female plot:
 ```{r}
@@ -61,7 +61,7 @@ axis(1, at=0:6, family = "T", cex.axis=1.2)
 axis(2, at=4*0:12, family = "T", cex.axis=1.2)
 ```
 
-Male data:
+Male plot:
 ```{r}
 #make scatterplot of data
 plot(offspring ~ mates, data = male,
@@ -77,8 +77,7 @@ axis(1, at=0:6, family = "T", cex.axis=1.2)
 axis(2, at=4*0:12, family = "T", cex.axis=1.2)
 ```
 
-
-Male data subset to remove zero value mating success records:
+Male plot with data subset to remove zero value mating success records:
 ```{r}
 #make scatterplot of data
 plot(offspring ~ mates, data = male_nonzero,
@@ -94,8 +93,9 @@ axis(1, at=0:6, family = "T", cex.axis=1.2)
 axis(2, at=4*0:12, family = "T", cex.axis=1.2)
 ```
 
+I also plotted number of mates vs. number of breeding years for each data set.
 
-I also plotted number of mates vs number of breeding years for each data set.
+Females:
 ```{r}
 #make scatterplot of data
 plot(mates ~ years_breeding, data = female,
@@ -105,6 +105,7 @@ plot(mates ~ years_breeding, data = female,
 	family = "T", cex = .8, pch = 1,bty = "l", xaxs = "r")
 ```
 
+Males:
 ```{r}
 #make scatterplot of data
 plot(mates ~ years_breeding, data = male,
@@ -114,6 +115,7 @@ plot(mates ~ years_breeding, data = male,
 	family = "T", cex = .8, pch = 1,bty = "l", xaxs = "r")
 ```
 
+Males without zero values:
 ```{r}
 #make scatterplot of data
 plot(mates ~ years_breeding, data = male_nonzero,
@@ -123,8 +125,9 @@ plot(mates ~ years_breeding, data = male_nonzero,
 	family = "T", cex = .8, pch = 1,bty = "l", xaxs = "r")
 ```
 
-
 I also plotted number of offspring vs number of breeding years for each data set.
+
+Females:
 ```{r}
 #make scatterplot of data
 plot(offspring ~ years_breeding, data = female,
@@ -134,6 +137,7 @@ plot(offspring ~ years_breeding, data = female,
 	family = "T", cex = .8, pch = 1,bty = "l", xaxs = "r")
 ```
 
+Males:
 ```{r}
 #make scatterplot of data
 plot(offspring ~ years_breeding, data = male,
@@ -143,6 +147,7 @@ plot(offspring ~ years_breeding, data = male,
 	family = "T", cex = .8, pch = 1,bty = "l", xaxs = "r")
 ```
 
+Males without zero values:
 ```{r}
 #make scatterplot of data
 plot(offspring ~ years_breeding, data = female,
@@ -156,7 +161,7 @@ plot(offspring ~ years_breeding, data = female,
 ............................................................................
 ............................................................................
 
-To test for a significant relationship between number of mates and numbers of offspring (and the effect of the covariate of number of years the individual bred), I ran generalized linear models with a Poisson distribution (because data are count data) and a log link. This was also done by Apakupakul and Rubenstein (2015).
+To test for a significant relationship between number of mates and numbers of offspring (= Bateman gradient), and the effect of the covariate of number of years the individual bred, I ran generalized linear models with a Poisson distribution (because data are count data). This was also done by Apakupakul and Rubenstein (2015).
 
 
 Starting with the female data, I first ran the GLM with an interaction between number of mates and the number of breeding years.
@@ -168,23 +173,23 @@ glm_female <- glm(offspring ~ mates*years_breeding, data=female, family=poisson)
 summary(glm_female)
 ```
 
-
-There was no evidence of a significant interaction between number of mates and number of breeding years, so this interaction was removed and the model re-run.
+There was no evidence of a significant interaction between number of mates and number of breeding years for the female data set, so this interaction was removed and the model re-run.
 ```{r}
 #glm without interaction of fixed effects
+#Note: overwriting earlier female glm
 glm_female <- glm(offspring ~ mates + years_breeding, data=female, family=poisson)
 
 #view summary of glm
 summary(glm_female)
 ```
 
-I extracted the female Bateman gradient from the model.
+Then, I extracted the female Bateman gradient from the model..
 ```{r}
 #print the female Bateman gradient, as extracted from the model coefficients
 cat("Female Bss (absolute): ", glm_female$coefficients[2], "\n")
 ```
 
-Then, I tested for a significant effect of number of mates on number of offspring by removing mating success from the model with the drop1 function, and comparing the reduced model with a LLR test.
+Then, I tested for a significant effect of number of mates on number of offspring for females by removing mating success from the model with the drop1 function, and comparing the reduced model with a LLR test.
 ```{r}
 #use drop one function with chi-square statistic for LRT
 drop1(glm_female, test="Chisq")
@@ -192,7 +197,7 @@ drop1(glm_female, test="Chisq")
 
 I found that there was no significant effect of number of mates on reproductive success after adjusting for the number of years that the female bred. This is seen by the LRT which shows that the model is not significantly different if the number of mates is removed as a predictor variable. In other words, there is no significant Bateman gradient for females when including number of breeding years as a covariate. This is what we would expect based off of sexual selection theory.
 
-I then ran a GLM for males, including the zero count data, and with an interaction effect between number of mates and number of breeding years.
+I then ran a similar GLM for males, including the zero count data, and with an interaction effect between number of mates and number of breeding years.
 ```{r}
 #glm with interaction between fixed effects
 glm_male <- glm(offspring ~ mates*years_breeding, data=male, family=poisson)
@@ -200,6 +205,7 @@ glm_male <- glm(offspring ~ mates*years_breeding, data=male, family=poisson)
 #view glm summary
 summary(glm_male)
 ```
+
 As expected given the dependency I describe above (and the large number of zeros in this data set), there was a significant interaction between number of mates and number of breeding years. 
 
 
@@ -212,16 +218,24 @@ glm_male_nonzero <- glm(offspring ~ mates*years_breeding, data=male_nonzero, fam
 summary(glm_male_nonzero)
 ```
 
-Therefore, I re-ran the male GLM without the interaction term for the non-zero male data (since there was no significant interaction between number of mates and number of breeding years).
+Therefore, I re-ran the male GLM without the interaction term for the non-zero male data (i.e., since there was no significant interaction between number of mates and number of breeding years).
 ```{r}
 #glm without interaction between fixed effects
+#Note: overwriting earlier male glm
 glm_male_nonzero <- glm(offspring ~ mates + years_breeding, data=male_nonzero, family=poisson)
 
 #view summary of glm
 summary(glm_male_nonzero)
 ```
-I printed the male Bateman gradient using absolute values.
 
+Quick sidebar: I also removed the data files for males with zeros so as to not get confused later.
+```{r}
+#remove unnecessary data files
+rm(male)
+rm(glm_male)
+```
+
+I extracted the male Bateman gradient from the model coefficients.
 ```{r}
 #cat the male Bateman gradient as extracted from the coefficients of the model
 cat("Male Bss (absolute): ", glm_male_nonzero$coefficients[2], "\n")
@@ -234,28 +248,27 @@ I tested the significance of number of mates in the model with drop1, as I did f
 drop1(glm_male_nonzero, test="Chisq")
 ```
 
-Interestingly, I found that there was no significant effect of number of mates on number of offspring for males when adjusting for the number of years that the male bred. In other words, there is no significant Bateman gradient for males when accounting for this covariate. This is a really interesting result and actually supports our results regarding lack of selection on male SVL (see results of this analyses at the end of the document). We would expect to see an effect of male SVL on number of offspring produced if males are gaining more priority access to females via male combat (i.e., acquiring more mates). However, we didn't. There is no relationship between male SVL and number of offspring produced. Furthermore, there is a lack of sexual size dimorphism in this population, also supporting that male SVL isn't allowing males to gain more offspring via more mating opportunities. Therefore, it makes sense that we wouldn't see a relationship between number of mates (which could have been, but was not, positively related to male SVL) and number of offspring produced.
-
-
+Interestingly, I found that there was no significant effect of number of mates on number of offspring for males when adjusting for the number of years that the male bred. In other words, there is no significant Bateman gradient for males when accounting for this covariate. This is a really interesting result and supports our results regarding lack of selection on male SVL (see results of this analyses later in the notebook). We would expect to see an effect of male SVL on number of offspring produced if males are gaining more priority access to females via male combat (i.e., acquiring more mates). However, we didn't. There is no relationship between male SVL and number of offspring produced (nor number of mates with which offspring were produced). Furthermore, there isn't dramatic sexual size dimorphism in this population, also supporting that male SVL isn't allowing males to gain more offspring via more mating opportunities. Therefore, it makes sense that we wouldn't see a relationship between number of mates (which could have been, but was not, positively related to male SVL) and number of offspring produced.
 
 Then, I evaluated the residual diagnostics of the models.
+
 First, for females:
 ```{r}
 #plot residual diagnostics for female glm
 plot(glm_female)
 ```
-The female residuals look OK, though not amazing, considering the sample size is so small (N = 18). There doesn't seem to be a clear pattern on the residuals vs. fitted curve, the qqplot pretty closely follows a straight line, the scale location line is relatively horizontal (although not perfect) and the residuals seem randomly spread, and there aren't any points that seem to be influential to the regression results.
-
+The female residuals look OK considering the sample size is so small (N = 18). There doesn't seem to be a clear pattern on the residuals vs. fitted curve, the qqplot pretty closely follows a straight line, the scale location line is relatively horizontal and the residuals seem randomly spread, and there aren't any points that seem to be influential to the regression results.
 
 Then, I evaluated the residual diagnostics for the male GLM.
 ```{r}
 #plot residual diagnostics for male GLM
 plot(glm_male_nonzero)
 ```
-Same interpretation of residuals as for females. Not terrible, but not amazing, likely due to the low sample size. However, the residual diagnostics are not alarming to me. I think we can live with them. 
+Same interpretation of residuals as for females. 
 
+I also tested for overdispersion given the Poisson distribution. 
 
-I also tested for overdispersion. First for females:
+First for females:
 ```{r}
 #use package AER to test for overdispersion of female glm
 library(AER)
@@ -265,17 +278,17 @@ dispersiontest(glm_female)
 Then for males:
 ```{r}
 #use package AER to test for overdispersion of male glm
-dispersiontest(glm_male_nonzero)
+dispersiontest(glm_male_nonzero) 
 ```
-Good to go! No evidence of overdispersion for either model.
 
+There is no evidence of overdispersion for either model.
 
 ................................................................................................
 ................................................................................................
 
-All analyses were repeated using relative mating success and relative reproductive success (as in Henshaw et al. 2016):
+All analyses were repeated using relative mating success and relative reproductive success so as to quantify standardized Bateman gradients (as in Henshaw et al. 2016).
 
-First, I calculated mean mating and reproductive success for each sex. Then, I divided each individual's mating and reproductive success by their respective means to calculate relative mating and reproductive success and added these new values in two new columns to the sex's data frame.
+First, I calculated mean mating and reproductive success for each sex. Then, I divided each individual's mating and reproductive success by their respective means to calculate relative mating and reproductive success and added these new values in two new columns to the respective data frame for each sex.
 ```{r}
 ###########  females
 #calculate mean number of mates for females
@@ -284,17 +297,16 @@ mean_mate_f <- mean(female[["mates"]])
 #calculate mean number of offspring for females
 mean_off_f <- mean(female[["offspring"]])
 
-#print mean number of mates and offspring for females
+#cat mean number of mates and offspring for females
 cat("Female Mean Mating Success:", mean_mate_f, "\n","Female Mean Reproductive Success:", mean_off_f, "\n\n")
 
 #add relative mating and reproductive success to female data frame
-female$rel_mates <- female$mates/mean_mate_f
-female$rel_off <- female$offspring/mean_off_f
+female$rel_mates <- female$mates/mean_mate_f #rel_mates = relative mating success added to data frame
+female$rel_off <- female$offspring/mean_off_f #rel_off = relative reproductive success added to data frame
 
-#print the first few rows of the new data frame to confirm new columns are there
+#view the first few rows of the new data frame to confirm new columns are there
 head(female)
-cat("\n\n")
-
+cat("\n\n") #cat some new lines
 
 ###########  males
 #calculate mean number of mates for males
@@ -303,22 +315,22 @@ mean_mate_m <- mean(male_nonzero[["mates"]])
 #calculate mean number of offspring for males
 mean_off_m <- mean(male_nonzero[["offspring"]])
 
-#print mean number of mates and offspring for males
+#cat mean number of mates and offspring for males
 cat("Male Mean Mating Success:", mean_mate_m, "\n", "Male Mean Reproductive Success:", mean_off_m, "\n\n")
 
 #add relative mating and reproductive success to male data frame
-male_nonzero$rel_mates <- male_nonzero$mates/mean_mate_m
-male_nonzero$rel_off <- male_nonzero$offspring/mean_off_m
+male_nonzero$rel_mates <- male_nonzero$mates/mean_mate_m #rel_mates = relative mating success added to data frame
+male_nonzero$rel_off <- male_nonzero$offspring/mean_off_m #rel_off = relative reproductive success added to data frame
 
-#print the first few rows of the new data frame to confirm new columns are there
+#cat the first few rows of the new data frame to confirm new columns are there
 head(male_nonzero)
-cat("\n\n")
+cat("\n\n") #cat some new lines
 ```
 
-
-Starting with the female data, I ran the GLM with an interaction between relative number of mates and the number of breeding years. I used a gaussian probability distribution rather than poisson, because data are no longer count data.
+Starting with the female data, I ran the GLM with an interaction between relative number of mates and the number of breeding years. I used a Gaussian probability distribution rather than Poisson, because data are no longer count data and are continuous.
 ```{r}
 #glm with interaction between mating success and number of years breeding
+#Note: overwriting the earlier female glm
 glm_female <- glm(rel_off ~ rel_mates*years_breeding, data=female, family=gaussian)
 
 #view summary of glm
@@ -328,29 +340,29 @@ summary(glm_female)
 There was no evidence of a significant interaction between number of mates and number of breeding years, so this interaction was removed and the model re-run.
 ```{r}
 #glm without interaction of fixed effects
+#Note: overwriting earlier female glm
 glm_female <- glm(rel_off ~ rel_mates + years_breeding, data=female, family=gaussian)
 
 #view summary of glm
 summary(glm_female)
 ```
-I extracted the female Bss using relative values.
+
+I extracted the standardized female Bss using relative values.
 ```{r}
 #cat the female standardized Bateman gradient as extracted from the model coefficients
 cat("Standardized Female Bss (relative): ", glm_female$coefficients[2], "\n")
 ```
 
-
-
-Then, I tested for a significant effect of relative number of mates on number of offspring by removing relative mating success from the model with the drop1 function, and comparing the reduced model with a LLR test.
+Then, I tested for a significant effect of relative number of mates on number of offspring for females by removing relative mating success from the model with the drop1 function, and comparing the reduced model with a LLR test.
 ```{r}
 #use drop one function with chi-square statistic for LRT
 drop1(glm_female, test="Chisq")
 ```
 
-For male data, I ran the GLM with an interaction between relative number of mates and the number of breeding years. I used a gaussian probability distribution rather than poisson, because data are no longer count data.
-
+For male data, I ran the GLM with an interaction between relative number of mates and the number of breeding years. I used a Gaussian probability distribution rather than Poisson, because data are no longer count data and are continuous.
 ```{r}
 #glm of non-zero male data set with interaction between fixed effects
+#Note: overwriting earlier male glm
 glm_male_nonzero <- glm(rel_off ~ rel_mates*years_breeding, data=male_nonzero, family=gaussian)
 
 #view summary of glm
@@ -360,17 +372,18 @@ summary(glm_male_nonzero)
 I re-ran the male GLM without the interaction term for the non-zero male data (since there was no significant interaction between relative number of mates and number of breeding years).
 ```{r}
 #glm without interaction between fixed effects
+#Note: overwriting earlier male glm
 glm_male_nonzero <- glm(rel_off ~ rel_mates + years_breeding, data=male_nonzero, family=gaussian)
 
 #view summary of glm
 summary(glm_male_nonzero)
 ```
-I extracted the Bateman gradient for males using relative values.
+
+I extracted the standardized Bateman gradient for males from the model coefficients.
 ```{r}
 #cat the male standardized Bateman gradient as extracted from the model coefficients
 cat("Standardized Male Bateman Gradient (relative): ", glm_male_nonzero$coefficients[2], "\n")
 ```
-
 
 I tested the significance of relative number of mates in the model with drop1, as I did for females.
 ```{r}
@@ -378,14 +391,13 @@ I tested the significance of relative number of mates in the model with drop1, a
 drop1(glm_male_nonzero, test="Chisq")
 ```
 
-
 Then, I evaluated the residual diagnostics of the models.
+
 First, for females:
 ```{r}
 #plot residual diagnostics for female glm
 plot(glm_female)
 ```
-
 
 Then, for males:
 ```{r}
@@ -393,10 +405,9 @@ Then, for males:
 plot(glm_male_nonzero)
 ```
 
-The residual diagnostics are similar for both males and females when using the relative, rather than absolute, values in the model with a gaussian distribution. We can probably use either model
+The residual diagnostics are similar for both males and females when using the relative, rather than absolute, values in the model with a Gaussian distribution. 
 
-
-Finally, I made some plots for the publications
+Finally, I made some plots for the publications using ggplot2 and saves them as tiffs.
 ```{r}
 #load graphics packages
 library(ggplot2)
@@ -421,13 +432,12 @@ ggplot(male_nonzero, aes(x=mates, y=offspring)) + geom_point(size=2) + theme_cla
 dev.off()
 ```
 
-
 ..................................................................................
 ..................................................................................
 
 Next, I tested for selection on male SVL.
 
-First, I loaded the data file and set sire ID as a factor.Then, I calculated relative reproductive success, relative mating success, and mean-standardized SVL.
+First, I loaded the data file and set sire ID as a factor.Then, I calculated relative reproductive success, relative mating success, and mean-standardized SVL from the data.
 ```{r}
 #read raw data
 atrox_SVL <- read.csv("atrox_RRS_StSVL.csv")
@@ -435,29 +445,25 @@ atrox_SVL <- read.csv("atrox_RRS_StSVL.csv")
 #make sire ID a factor to later fit as a random effect in the model
 atrox_SVL$Sire <- as.factor(atrox_SVL$Sire)
 
-####### calculate mean-standardized SVL
+# calculate mean-standardized SVL
 mean_svl <- mean(atrox_SVL[["SVL"]]) #calculate mean SVL
 stdev_svl <- sd(atrox_SVL[["SVL"]]) #calculate standard deviation SVL
-atrox_SVL$StSVL <- (atrox_SVL$SVL - mean_svl)/stdev_svl #calculate mean standardized SVL
+atrox_SVL$StSVL <- (atrox_SVL$SVL - mean_svl)/stdev_svl #calculate mean standardized SVL and add to data frame
 
-####### calculate relative reproductive success
+# calculate relative reproductive success
 mean_RS <- mean(atrox_SVL[["RS"]]) #calculate mean RS
-atrox_SVL$RRS <- atrox_SVL$RS/mean_RS #calculate relative RS
+atrox_SVL$RRS <- atrox_SVL$RS/mean_RS #calculate relative RS and add to data frame
 
-####### calculate relative mating success
+# calculate relative mating success
 mean_MS <- mean(atrox_SVL[["MS"]]) #calculate mean MS
-atrox_SVL$RMS <- atrox_SVL$MS/mean_MS #calculate relative MS
+atrox_SVL$RMS <- atrox_SVL$MS/mean_MS #calculate relative MS and add to data frame
 
-#confirm all calculations added to table
+#confirm all calculations added to data frame by viewing the first few rows
 head(atrox_SVL) 
 ```
 
-
-Then, I ran a linear mixed effects model to test for an effect of mean-standardized annual male SVL on relative reproductive success (= linear selection differential). We have repeated measures in this data set (males siring offspring across years), so I included sire ID as a random effect to account for non-independence among data points.
+Then, I ran a linear mixed effects model to test for an effect of mean-standardized annual male SVL on annual reproductive success (= linear selection differential). We have repeated measures in this data set (males siring offspring in multiple years), so I included sire ID as a random effect to account for non-independence among data points.
 ```{r}
-#use lmer (package lme4) to regress RRS on to StSVL while controlling for repeated measures
-#this calculated the linear selection differential on male SVL
-
 #load package
 library(lme4)
 
@@ -468,14 +474,13 @@ mod_RRS <- lmer(RRS ~ StSVL + (1|Sire), data=atrox_SVL)
 summary(mod_RRS)
 ```
 
-
 Then, I tested the significance of fixed effects in the model (mean-standardized SVL) using the drop1 function and an LRT.
 ```{r}
 #drop1 to test significance of model without StSVL
 drop1(mod_RRS, test="Chisq")
 ```
-There is no significant effect of male mean-standardized SVL on male relative reproductive success.
 
+There is no significant effect of male mean-standardized SVL on male relative reproductive success.
 
 I then plotted annual relative reproductive success against mean-standardized SVL.
 ```{r}
@@ -489,8 +494,7 @@ I also evaluated model residuals.
 plot(mod_RRS)
 ```
 
-I also ran a linear mixed effects model to test for an effect of mean-standardized annual male SVL on relative mating success (= linear mating differential). We have repeated measures in this data set (males siring offspring across years), so I included sire ID as a random effect to account for non-independence among data points. I recieved a warning that variance of the sire random effect was very small -- unsurprising given that almost all male records (except for 3) had the same value of RMS.
-
+I also ran a linear mixed effects model to test for an effect of mean-standardized annual male SVL on relative mating success (= linear mating differential). We have repeated measures in this data set (males siring offspring across years), so I included sire ID as a random effect to account for non-independence among data points. I received a warning that variance of the sire random effect was very small; this was unsurprising given that almost all male records (except for 3) had the same value of RMS.
 ```{r}
 #use lmer (package lme4) to regress RMS on to StSVL while controlling for repeated measures
 mod_RMS <- lmer(RMS ~ StSVL + (1|Sire), data=atrox_SVL)
@@ -511,14 +515,13 @@ I plotted relative mating success against mean-standardized SVL.
 ggplot(atrox_SVL, aes(x=StSVL, y=RMS)) + geom_point(size=2) + theme_classic() + labs(x="Standardized SVL", y="Relative Mating Success") + theme(axis.title.x = element_text(size=14, family = "Arial"), axis.title.y = element_text(size=14, family = "Arial"), axis.text = element_text(size=12, family = "Arial")) 
 ```
 
-I also evaluated model residuals. They don't look great, but I'm not sure there is anything we can do about that. This could also be because it's a mixed effects model.
+I also evaluated model residuals. They don't look great, but there's not much to be done about this. This could also be because we have a small sample size and we used a mixed effects model.
 ```{r}
 #plot model residuals
 plot(mod_RMS)
 ```
 
-
-Finally, I made some plots for publications.
+Finally, I made some plots for publications and saves them as tiffs.
 ```{r}
 #save resulting graph as a tiff
 tiff(file="mating_diff.tiff", width=6, height=4, units="in", res=100)
@@ -538,17 +541,20 @@ ggplot(atrox_SVL, aes(x=StSVL, y=RRS)) + geom_point(size=2) + theme_classic() + 
 #over-ride graphics device
 dev.off()
 ```
+
 ....................................................................................
 ....................................................................................
 
-Then, I moved on to quantifying opportunities for sexual selection and selection. I first quantified these by year for males and females.
+Then, I moved on to quantifying opportunities for sexual selection (Is) and selection (I). 
 
-First, I read in the data file. Then, I subset the file into a male and a female file.
+I first quantified Is and I BY YEAR for males and females.
+
+To do so, I first read in the data file. Then, I subset the file into a male and a female file.
 ```{r}
 #load csv file
 opportunities <- read.csv("opportunities_selection.csv")
 
-##subset data
+####### subset data
 #subset data frame and make new female data frame
 female_opp <- subset(opportunities, Sex=='f')
 
@@ -556,8 +562,7 @@ female_opp <- subset(opportunities, Sex=='f')
 male_opp <- subset(opportunities, Sex=='m')
 ```
 
-
-Starting with the female file, I automated a subsetting of the female file to create subsets for each year with at least 3 data points. This is because we cannot calculate variance for years in which we have 2 or fewer records.
+Starting with the female data frame, I automated a subsetting of the female file to create subsets for each year with at least 3 data points. This is because we cannot calculate variance for years in which we have 2 or fewer records.
 ```{r}
 #create a dataframe (c_f) of years for which there are at least 3 female data points
 a_f <- rle(sort(female_opp$Year))
@@ -567,37 +572,39 @@ c_f <- subset(b_f, n>'2') #subset those years that have more than 2 records
 #create a subset of the original female data set for each year with greater than 2 records
 for(i in c_f$year) { #for each year in the c_f data frame
   
-  assign(paste("f_", i, sep = ""), subset(female_opp, Year==i)) #create a subset of the original female data set and name it with an f (for female) and the year
+    assign(paste("f_", i, sep = ""), subset(female_opp, Year==i)) #create a subset of the original female data set and name it with an f (for female) and the year
   
 }
+
+#remove intermediate files
+rm(a_f, b_f)
 ```
 
-For each year female dataframe, I calculated annual opportunity for sexual selection (Is).
+For each yearly female data frame, I calculated annual opportunity for sexual selection (Is).
 ```{r}
 #create list of year data frames (these are the years with >2 records)
 df_list <- list(f_2003, f_2004, f_2005, f_2006, f_2007)
 
-#create empty data frame called opp_sex_f
+#create empty data frame called opp_sex_f in which to store the Is values
 opp_sex_f = NULL
 
 #use for loop to calculate variables for female Is for each data frame
 for(i in df_list) { #for each data frame in the df_list
   
-  variance <- var(i$MS) #calculate the variance in MS
-  x <- mean(i$MS) #calculate the mean in MS
-  meansq <- x^2 #calculate the squared mean of MS
-  rel_var <- variance/meansq #calculate opportunity for sexual selection
-  opp_sex_f = rbind(opp_sex_f, data.frame(variance, x, meansq, rel_var)) #add all variables to the empty data frame
-  
+    variance <- var(i$MS) #calculate the variance in MS
+    x <- mean(i$MS) #calculate the mean in MS
+    meansq <- x^2 #calculate the squared mean of MS
+    rel_var <- variance/meansq #calculate opportunity for sexual selection
+    opp_sex_f = rbind(opp_sex_f, data.frame(variance, x, meansq, rel_var)) #add all variables to the new empty data frame
 }
 
-
-#combine the data frame containing years and number of data points for females with the data frame containing calculations so that we know what year corresponds wtih each value
+#combine the data frame containing years and number of data points for females (c_f) with the data frame containing calculations (opp_sex_f) so that we know what year corresponds wtih each value
 opp_sex_f <- cbind(c_f, opp_sex_f)
 
-####rename columns in opp_sel
+#### rename columns in opp_sex_f data frame
 #load necessary package to do this
 library(plyr)
+
 #rename columns of data frame
 opp_sex_f <- rename(opp_sex_f, c("year"= "Year", "n"="N (f)", "variance"="Variance MS (f)", "x"="Mean MS (f)", "meansq" = "Squared Mean MS (f)", "rel_var" = "Is (f)"))
 
@@ -605,32 +612,32 @@ opp_sex_f <- rename(opp_sex_f, c("year"= "Year", "n"="N (f)", "variance"="Varian
 opp_sex_f
 ```
 
-For each female year dataframe, I calculated annual opportunity for selection (I).
+For each female year data frame, I calculated annual opportunity for selection (I).
 ```{r}
-#create empty data frame called opp_sel_f
+#create empty data frame called opp_sel_f in which to store the I values.
 opp_sel_f = NULL
 
 for(i in df_list) { #for each data frame in the previously created df_list
   
-  variance <- var(i$RS) #calculate the variance in RS
-  x <- mean(i$RS) #calculate the mean in RS
-  meansq <- x^2 #calculate the squared mean of RS
-  rel_var <- variance/meansq #calculate opportunity for selection
-  opp_sel_f = rbind(opp_sel_f, data.frame(variance, x, meansq, rel_var)) #add all variables to the empty data frame
-  
+    variance <- var(i$RS) #calculate the variance in RS
+    x <- mean(i$RS) #calculate the mean in RS
+    meansq <- x^2 #calculate the squared mean of RS
+    rel_var <- variance/meansq #calculate opportunity for selection
+    opp_sel_f = rbind(opp_sel_f, data.frame(variance, x, meansq, rel_var)) #add all variables to the empty data frame
+
 }
 
-#combine the data frame containing years and number of data points for females with the data frame containing calculations so we know which years correspond with which values
+#combine the data frame containing years and number of data points for females (c_f) with the data frame containing I calculations (opp_sel_f) so we know which years correspond with which values
 opp_sel_f <- cbind(c_f, opp_sel_f)
 
-#rename columns in opp_sel
+#rename columns in opp_sel_f
 opp_sel_f <- rename(opp_sel_f, c("year"= "Year", "n"="N (f)", "variance"="Variance RS (f)", "x"="Mean RS (f)", "meansq" = "Squared Mean RS (f)", "rel_var" = "I (f)"))
 
 #view new data frame
 opp_sel_f
 ```
 
-I calculated mean opportunities for sexual selection and selection for females.
+I calculated MEAN opportunities for sexual selection and selection for females.
 ```{r}
 mean_Is_f <- mean(opp_sex_f$`Is (f)`) #mean opportunity for sexual selection
 mean_I_f <- mean(opp_sel_f$`I (f)`) #mean opportunity for selection
@@ -639,8 +646,7 @@ mean_I_f <- mean(opp_sel_f$`I (f)`) #mean opportunity for selection
 cat("Female Mean Is: ", mean_Is_f, "\n", "Female Mean I: ", mean_I_f, "\n\n")
 ```
 
-
-For the male file, I automated a subsetting of the male file to create subsets for each year with at least 3 data points. This is because we cannot calculate variance for years with fewer than 3 records.
+Then, for the male data frame, I automated a subsetting of the data frame to create subsets for each year with at least 3 data points. This is because we cannot calculate variance for years with fewer than 3 records. This is the same thing I did for females.
 ```{r}
 #create a dataframe (c_m) of years for which there are at least 3 male data points
 a_m <- rle(sort(male_opp$Year))
@@ -650,12 +656,15 @@ c_m <- subset(b_m, n>'2') #subset the male data frame for only years with >2 rec
 #for each year in the c_m data frame, create a subset of the original male data set
 for(i in c_m$year) { #for each year with more than 2 records
   
-  assign(paste("m_", i, sep = ""), subset(male_opp, Year==i)) #create a subset for each year for males, and name with an m and the year
+    assign(paste("m_", i, sep = ""), subset(male_opp, Year==i)) #create a subset for each year for males, and name with an m and the year
   
 }
+
+#remove intermediate data frames
+rm(a_m, b_m)
 ```
 
-Then, for each male data frame, I calculated annual opportunity for sexual selection (Is).
+Then, for each yearly male data frame, I calculated annual opportunity for sexual selection (Is).
 ```{r}
 #create list of year data frames (note: overwriting the female df_list)
 df_list <- list(m_2003, m_2005, m_2006, m_2007)
@@ -665,160 +674,151 @@ opp_sex_m = NULL
 
 for(i in df_list) { #for each year data frame in the df_list
   
-  variance <- var(i$MS) #calculate the variance in MS
-  x <- mean(i$MS) #calculate the mean in MS
-  meansq <- x^2 #calculate the squared mean of MS
-  rel_var <- variance/meansq #calculate opportunity for sexual selection
-  opp_sex_m = rbind(opp_sex_m, data.frame(variance, x, meansq, rel_var)) #add all variables to the empty data frame
-  
+    variance <- var(i$MS) #calculate the variance in MS
+    x <- mean(i$MS) #calculate the mean in MS
+    meansq <- x^2 #calculate the squared mean of MS
+    rel_var <- variance/meansq #calculate opportunity for sexual selection
+    opp_sex_m = rbind(opp_sex_m, data.frame(variance, x, meansq, rel_var)) #add all variables to the empty data frame
 }
 
-#combine the data frame containing years and number of data points with the data frame containing calculations so we know which years correspond with which values
+#combine the data frame containing years and number of data points (c_m) with the data frame containing Is calculations (opp_sex_m) so we know which years correspond with which values
 opp_sex_m <- cbind(c_m, opp_sex_m)
 
-#rename columns in opp_sel
+#rename columns in opp_sex_m
 opp_sex_m <- rename(opp_sex_m, c("year"= "Year", "n"="N (m)", "variance"="Variance MS (m)", "x"="Mean MS (m)", "meansq" = "Squared Mean MS (m)", "rel_var" = "Is (m)"))
 
 #view new data frame
 opp_sex_m
 ```
 
-Then, for each male dataframe, I calculated annual opportunity for selection.
+Then, for each yearly male data frame, I calculated annual opportunity for selection.
 ```{r}
-#create empty data frame
+#create empty data frame in which to store I values
 opp_sel_m = NULL
 
 for(i in df_list) { #for each data frame in the df_list
   
-  variance <- var(i$RS) #calculate the variance in RS
-  x <- mean(i$RS) #calculate the mean in RS
-  meansq <- x^2 #calculate the squared mean of RS
-  rel_var <- variance/meansq #calculate opportunity for selection
-  opp_sel_m = rbind(opp_sel_m, data.frame(variance, x, meansq, rel_var)) #add all variables to the empty data frame
-  
+    variance <- var(i$RS) #calculate the variance in RS
+    x <- mean(i$RS) #calculate the mean in RS
+    meansq <- x^2 #calculate the squared mean of RS
+    rel_var <- variance/meansq #calculate opportunity for selection
+    opp_sel_m = rbind(opp_sel_m, data.frame(variance, x, meansq, rel_var)) #add all variables to the empty data frame
 }
 
-#combine the data frame containing years and number of data points with the data frame containing calculations so we know which years correspond with which values
+#combine the data frame containing years and number of data points (c_m) with the data frame containing I calculations (opp_sel_m) so we know which years correspond with which values
 opp_sel_m <- cbind(c_m, opp_sel_m)
 
-#rename columns in opp_sel
+#rename columns in opp_sel_m
 opp_sel_m <- rename(opp_sel_m, c("year"= "Year", "n"="N (m)", "variance"="Variance RS (m)", "x"="Mean RS (m)", "meansq" = "Squared Mean RS (m)", "rel_var" = "I (m)"))
 
 #view new data frame
 opp_sel_m
 ```
 
-Finally, I calculated mean opportunities for sexual selection and selection for males.
+Then, I calculated MEAN opportunities for sexual selection and selection for males.
 ```{r}
 mean_Is_m <- mean(opp_sex_m$`Is (m)`) #mean opportunity for sexual selection
 mean_I_m <- mean(opp_sel_m$`I (m)`) #mean opportunity for selection
 
 #cat the means so we know what they are
 cat("Male Mean Is: ", mean_Is_m, "\n", "Male Mean I: ", mean_I_m, "\n\n")
-
 ```
 
 I statistically compared YEARLY male and female Is with an F-ratio test.
 ```{r}
-#create a merged data frame of yearly data that is present for both males and females
+#create a merged data frame of yearly data that is present for BOTH males and females
 opp_sex_merged <- merge(opp_sex_f, opp_sex_m, by.x = "Year") #merge the male and female opp_sex dataframes by year
 head(opp_sex_merged) #view the merged data frame to make sure the merge worked correctly
-cat("\n") #add a newline
+cat("\n\n") #cat some newlines
 
-#write a function to compare male and female Is for each year
+#write a function to compare male and female Is for each year with F Ratio test
 func_sex_comp <- function(x, output) { #function to be applied to each row
   
+  #calculate degrees of freedom for males and females
   df_f <- x["N (f)"] - 1 #degrees of freedom for females = #females - 1
   df_m <- x["N (m)"] - 1 #degrees of freedom for males = #males - 1
-  
-  if(x["Is (f)"] > x["Is (m)"]){ #if mean female Is is greater than mean male Is
+
+  #use if/else to determine which values to put in numerator/denominator and order for F Ratio
+  if(x["Is (f)"] > x["Is (m)"]){ #if female Is is greater than male Is
   
         crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
         f <- x["Is (f)"]/x["Is (m)"] #use female estimate as numerator in f ratio
-        cat("Note: For", x["Year"],", female Is value is numerator.\n")
+        cat("Note: For", x["Year"],", female Is value is numerator.\n") #cat description
   
   } else { #otherwise
   
-        crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in   calculation of critical value
+        crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
         f <- x["Is (m)"]/x["Is (f)"] #use male estimate as numerator in f ratio
-        cat("Note: For", x["Year"],", male Is value is numerator.\n") #cat statement about numerator
+        cat("Note: For", x["Year"],", male Is value is numerator.\n") #cat description
   
   }
   
-  #test whether male and female Is are significantly different
+  #test whether male and female Is are significantly different by comparing F Ratio with critical value
   if(f > crit){ #if the f ratio is larger than the critical value
   
-        cat("For", x["Year"], ", male and female Is are different (F > critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 2), "\n", "Male Is: ", round(x["Is (m)"], digits = 2), "\n", "F = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
+        cat("For", x["Year"], ", male and female Is are different (F > critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 2), "\n", "Male Is: ", round(x["Is (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat statistical metrics and parameters
   
   } else { #otherwise
   
-        cat("For", x["Year"], ", male and female Is are not different (F < critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 2), "\n", "Male Is: ", round(x["Is (m)"], digits = 2), "\n", "F = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
+        cat("For", x["Year"], ", male and female Is are not different (F < critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 2), "\n", "Male Is: ", round(x["Is (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat statistical metrics and parameters
   
   } 
   
-  
 }
 
+#run the function on the opp_sex_merged data frame
 apply(opp_sex_merged, 1, func_sex_comp)
 ```
 
-
 Then, I statistically compared YEARLY male and female I with an F-ratio test.
 ```{r}
-#create a merged data frame of yearly data that is present for both males and females
+#create a merged data frame of yearly data that is present for BOTH males and females
 opp_sel_merged <- merge(opp_sel_f, opp_sel_m, by.x = "Year") #merge the male and female opp_sel dataframes by year
 head(opp_sel_merged) #view the merged data frame to make sure the merge worked correctly
+cat("\n\n") #cat some new lines
 
-#write a function to compare male and female Is for each year
+#write a function to compare male and female I for each year with an F ratio test
 func_sel_comp <- function(x, output) { #function to be applied to each row
   
+  #calculate degrees of freedom for males and females
   df_f <- x["N (f)"] - 1 #degrees of freedom for females = #females - 1
   df_m <- x["N (m)"] - 1 #degrees of freedom for males = #males - 1
   
-  if(x["I (f)"] > x["I (m)"]){ #if mean female Is is greater than mean male Is
+  #use if/else to determine which values to put in numerator/denominator and order for F Ratio
+  if(x["I (f)"] > x["I (m)"]){ #if female I is greater than male I
   
         crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
         f <- x["I (f)"]/x["I (m)"] #use female estimate as numerator in f ratio
-        cat("Note: For", x["Year"],", female I value is numerator.\n")
+        cat("Note: For", x["Year"],", female I value is numerator.\n") #cat description
   
   } else { #otherwise
   
-        crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in   calculation of critical value
+        crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
         f <- x["I (m)"]/x["I (f)"] #use male estimate as numerator in f ratio
-        cat("Note: For", x["Year"],", male I value is numerator.\n") #cat statement about numerator
+        cat("Note: For", x["Year"],", male I value is numerator.\n") #cat description
   
   }
   
-  #test whether male and female I are significantly different
+  #test whether male and female I are significantly different by comparing F Ratio with critical value
   if(f > crit){ #if the f ratio is larger than the critical value
   
-        cat("For", x["Year"], ", male and female I are different (F > critical).", "\n", "Female I: ", round(x["I (f)"], digits = 2), "\n", "Male I: ", round(x["I (m)"], digits = 2), "\n", "F = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
+        cat("For", x["Year"], ", male and female I are different (F > critical).", "\n", "Female I: ", round(x["I (f)"], digits = 2), "\n", "Male I: ", round(x["I (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat statistical metrics and parameters
   
   } else { #otherwise
   
-        cat("For", x["Year"], ", male and female I are not different (F < critical).", "\n", "Female I: ", round(x["I (f)"], digits = 2), "\n", "Male I: ", round(x["I (m)"], digits = 2), "\n", "F = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
+        cat("For", x["Year"], ", male and female I are not different (F < critical).", "\n", "Female I: ", round(x["I (f)"], digits = 2), "\n", "Male I: ", round(x["I (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat statistical metrics and parameters
   
   } 
-  
-  
+ 
 }
 
+#run the function on the opp_sel_merged data frame
 apply(opp_sel_merged, 1, func_sel_comp)
 ```
 
-
-
-
-
-
-
-
-
-
-
-I statistically compared average male and female Is with an F-ratio test.
+I statistically compared MEAN annual male and female Is with an F-ratio test.
 ```{r}
-## degrees of freedom for females calculated as 1 - average number of records per year
+## degrees of freedom for females calculated as 1 - MEAN number of records per year
 df_f <- mean(c_f$n)-1 #number of records per year are still stored in the c_f data frame
 df_f <- round(df_f, digits = 0) #round to the nearest integer
 
@@ -826,67 +826,68 @@ df_f <- round(df_f, digits = 0) #round to the nearest integer
 df_m <- mean(c_m$n)-1  #number of records per year are still stored in c_m data frame
 df_m <- round(df_m, digits = 0) #round to the nearest integer
 
-#calculate F-ratio and critical value for Is, paying attention to whether males or females have the greater Is value
+#calculate F-ratio and critical value for Is, again paying attention to whether males or females have the greater Is value
 if(mean_Is_f > mean_Is_m){ #if mean female Is is greater than mean male Is
   
   crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
   f <- mean_Is_f/mean_Is_m #use female estimate as numerator in f ratio
-  cat("Note: Female Is value is numerator.\n\n")
+  cat("Note: Female Is value is numerator.\n\n") #cat description
   
 } else { #otherwise
   
   crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
   f <- mean_Is_m/mean_Is_f #use male estimate as numerator in f ratio
-  cat("Note: Male Is value is numerator.\n\n")
+  cat("Note: Male Is value is numerator.\n\n") #cat description
   
 }
 
-#test whether male and female Is are significantly different
+#test whether male and female Is are significantly different by comparing F ratio to critical value
 if(f > crit){ #if the f ratio is larger than the critical value
   
-  cat("Mean male and female Is are different (F > critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", round(mean_Is_f, digits = 2), "\n", "F-Ratio = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
+  cat("Mean male and female Is are different (F > critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", round(mean_Is_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat statistical metrics and parameters
   
 } else { #otherwise
   
-  cat("Mean male and female Is are not different (F < critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", round(mean_Is_f, digits = 2), "\n", "F-Ratio = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n" ) #cat these statements
+  cat("Mean male and female Is are not different (F < critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", round(mean_Is_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom:", df_m, "\n\n\n" ) #cat statistical metrics and parameters
   
 } 
 ```
+
+Then, I statistically compared MEAN annual male and female I with an F-ratio test.
 ```{r}
-#I can use the same degrees of freedom as for Is
+#Note: I can use the same degrees of freedom as for Is
 
 #calculate F-ratio and critical value for I
 if(mean_I_f > mean_I_m){ #if mean female I is greater than male I
   
   crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
   f <- mean_I_f/mean_I_m #use female estimate as numerator in f ratio
-  cat("Note: Female I value is numerator.\n\n")
+  cat("Note: Female I value is numerator.\n\n") #cat description
   
 } else { #otherwise
   
   crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
   f <- mean_I_m/mean_I_f #use male estimate as numerator in f ratio
-  cat("Note: Male I value is numerator.\n\n")
+  cat("Note: Male I value is numerator.\n\n") #cat description
   
 }
 
-#test whether male and female Is are significantly different
+#test whether male and female Is are significantly different by comparing F ratio to critical value
 if(f > crit){ #if the f ratio is larger than the critical value
   
-  cat("Mean male and female I are different (F > critical).", "\n", "Male I: ", round(mean_I_m, digits = 2), "\n", "Female I: ", round(mean_I_f, digits = 2), "\n", "F-Ratio = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
+  cat("Mean male and female I are different (F > critical).", "\n", "Male I: ", round(mean_I_m, digits = 2), "\n", "Female I: ", round(mean_I_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat statistical metrics and parameters
   
 } else { #otherwise
   
-  cat("Mean male and female I are not different (F < critical).", "\n", "Male I: ", round(mean_I_m, digits = 2), "\n", "Female I: ", round(mean_I_f, digits = 2), "\n", "F-Ratio = ", round(f, digits = 2), "\n", "Critical Value = ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat these statements
+  cat("Mean male and female I are not different (F < critical).", "\n", "Male I: ", round(mean_I_m, digits = 2), "\n", "Female I: ", round(mean_I_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat statistical metrics and parameters
   
 } 
 ```
 
-
 ..........................................................................................
 ..........................................................................................
 
-Finally, using the means for males and females of oppportunities for sexual selection and selection, I calculated the Jones index (s'max = Bss * sqrt(Is)). See Jones (2009). 
+Finally, using the means for males and females of annual opportunities for sexual selection and the previously calculated STANDARDIZED Bateman gradients, I calculated the Jones index (s'max = Bss * sqrt(Is)). See Jones (2009). 
 
 I first calculated the Jones index for females.
 ```{r}
@@ -899,8 +900,8 @@ Bss_f <- as.numeric(coef_f[2])
 #calculate Jones index
 Jones_f <- Bss_f*sqrt(mean_Is_f)
 
-#print the results of the analysis
-cat("Female Standardized Bateman Gradient: ", Bss_f, "\n","Female Mean Opportunity for Sexual Selection: ", mean_Is_f, "\n","Square Root Mean Female Is: ", sqrt(mean_Is_f), "\n","Female Jones Index: ", Jones_f)
+#cat the results of the analysis
+cat("Female Standardized Bateman Gradient: ", Bss_f, "\n","Female Mean Annual Opportunity for Sexual Selection: ", mean_Is_f, "\n","Square Root Mean Annual Female Is: ", sqrt(mean_Is_f), "\n","Female Jones Index: ", Jones_f)
 ```
 
 Then, I calculated the Jones index for males.
@@ -914,8 +915,8 @@ Bss_m <- as.numeric(coef_m[2])
 #calculate Jones index
 Jones_m <- Bss_m*sqrt(mean_Is_m)
 
-#print the results of the analysis
-cat("Male Standardized Bateman Gradient: ", Bss_m, "\n","Male Mean Opportunity for Sexual Selection: ", mean_Is_m, "\n","Square Root Mean Male Is: ", sqrt(mean_Is_m), "\n","Male Jones Index: ", Jones_m)
+#cat the results of the analysis
+cat("Male Standardized Bateman Gradient: ", Bss_m, "\n","Male Mean Annual Opportunity for Sexual Selection: ", mean_Is_m, "\n","Square Root Mean Annual Male Is: ", sqrt(mean_Is_m), "\n","Male Jones Index: ", Jones_m)
 
 ```
 
