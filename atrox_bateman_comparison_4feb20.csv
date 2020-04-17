@@ -1,4 +1,4 @@
-female,sex,mates,offspring,years_breeding
+id,sex,mates,offspring,years_breeding
 CA-1,f,6,12,4
 CA-2,f,2,5,1
 CA-16,f,3,6,1
