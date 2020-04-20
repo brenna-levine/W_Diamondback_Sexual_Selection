@@ -835,12 +835,14 @@ if(mean_Is_f > mean_Is_m){ #if mean female Is is greater than mean male Is
   
   crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
   f <- mean_Is_f/mean_Is_m #use female estimate as numerator in f ratio
+   pvalue <- pf(f, df1 = df_f, df2 = df_m, lower.tail = FALSE) #calculate p-value
   cat("Note: Female Is value is numerator.\n\n") #cat description
   
 } else { #otherwise
   
   crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
   f <- mean_Is_m/mean_Is_f #use male estimate as numerator in f ratio
+   pvalue <- pf(f, df1 = df_m, df2 = df_f, lower.tail = FALSE) #calculate p-value
   cat("Note: Male Is value is numerator.\n\n") #cat description
   
 }
@@ -848,11 +850,11 @@ if(mean_Is_f > mean_Is_m){ #if mean female Is is greater than mean male Is
 #test whether male and female Is are significantly different by comparing F ratio to critical value
 if(f > crit){ #if the f ratio is larger than the critical value
   
-  cat("Mean male and female Is are different (F > critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", round(mean_Is_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f, "\n\n\n") #cat statistical metrics and parameters
+  cat("Mean male and female Is are different (F > critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", round(mean_Is_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f, "\n", "P-value =", round(pvalue, digits = 2), "\n\n\n") #cat statistical metrics and parameters
   
 } else { #otherwise
   
-  cat("Mean male and female Is are not different (F < critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", round(mean_Is_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom:", df_f, "\n\n\n" ) #cat statistical metrics and parameters
+  cat("Mean male and female Is are not different (F < critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", round(mean_Is_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom:", df_f,"\n", "P-value =", round(pvalue, digits = 2), "\n\n\n" ) #cat statistical metrics and parameters
   
 } 
 ```
@@ -866,12 +868,14 @@ if(mean_I_f > mean_I_m){ #if mean female I is greater than male I
   
   crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
   f <- mean_I_f/mean_I_m #use female estimate as numerator in f ratio
+   pvalue <- pf(f, df1 = df_f, df2 = df_m, lower.tail = FALSE) #calculate p-value
   cat("Note: Female I value is numerator.\n\n") #cat description
   
 } else { #otherwise
   
   crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
   f <- mean_I_m/mean_I_f #use male estimate as numerator in f ratio
+   pvalue <- pf(f, df1 = df_m, df2 = df_f, lower.tail = FALSE) #calculate p-value
   cat("Note: Male I value is numerator.\n\n") #cat description
   
 }
@@ -879,11 +883,11 @@ if(mean_I_f > mean_I_m){ #if mean female I is greater than male I
 #test whether male and female Is are significantly different by comparing F ratio to critical value
 if(f > crit){ #if the f ratio is larger than the critical value
   
-  cat("Mean male and female I are different (F > critical).", "\n", "Male I: ", round(mean_I_m, digits = 2), "\n", "Female I: ", round(mean_I_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f, "\n\n\n") #cat statistical metrics and parameters
+  cat("Mean male and female I are different (F > critical).", "\n", "Male I: ", round(mean_I_m, digits = 2), "\n", "Female I: ", round(mean_I_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f,"\n", "P-value =", round(pvalue, digits = 2), "\n\n\n") #cat statistical metrics and parameters
   
 } else { #otherwise
   
-  cat("Mean male and female I are not different (F < critical).", "\n", "Male I: ", round(mean_I_m, digits = 2), "\n", "Female I: ", round(mean_I_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f, "\n\n\n") #cat statistical metrics and parameters
+  cat("Mean male and female I are not different (F < critical).", "\n", "Male I: ", round(mean_I_m, digits = 2), "\n", "Female I: ", round(mean_I_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f,"\n", "P-value =", round(pvalue, digits = 2), "\n\n\n") #cat statistical metrics and parameters
   
 } 
 ```
