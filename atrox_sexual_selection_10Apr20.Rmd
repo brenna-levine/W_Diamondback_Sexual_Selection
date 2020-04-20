@@ -27,7 +27,7 @@ bateman <- read.csv("atrox_bateman_comparison_4feb20.csv")
 ```
 
 
-Next, I subset the data to a female set, a male set that included zero mating and reproductive success, and a male set that did not include zero mating and reproductive success. The reason for analyzing non-zero male data is that I (BA)L was worried about the natural dependency of reproductive success on mating success (if mating success = 0, reproductive success has to equal 0). This dependency will be particularly important for calculations of the Bateman gradient that include number of breeding years as a covariate. If number of mates is zero, number of breeding years will also be zero, and therefore we will be basically guaranteed to have a significant interaction between mating success and number of breeding years that will make it impossible to evaluate the effect of number of mates and number of breeding years without considering the interaction between the two. This differs from Levine et al. (2015), but given the long-term nature of this data set (with individuals mating over time in multiple years) as opposed to the short-term nature of Levine et al. (2015), it's necessary.
+Next, I subset the data to a female set, a male set that included zero mating and reproductive success, and a male set that did not include zero mating and reproductive success. The reason for analyzing non-zero male data is that I (BAL) was worried about the natural dependency of reproductive success on mating success (if mating success = 0, reproductive success has to equal 0). This dependency will be particularly important for calculations of the Bateman gradient that include number of breeding years as a covariate. If number of mates is zero, number of breeding years will also be zero, and therefore we will be basically guaranteed to have a significant interaction between mating success and number of breeding years that will make it impossible to evaluate the effect of number of mates and number of breeding years without considering the interaction between the two. This differs from Levine et al. (2015), but given the long-term nature of this data set (with individuals mating over time in multiple years) as opposed to the short-term nature of Levine et al. (2015), it's necessary.
 ```{r}
 ####subset data
 #subset data frame and make new female data frame
@@ -743,12 +743,14 @@ func_sex_comp <- function(x, output) { #function to be applied to each row
   
         crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
         f <- x["Is (f)"]/x["Is (m)"] #use female estimate as numerator in f ratio
+        pvalue <- pf(f, df1 = df_f, df2 = df_m, lower.tail = FALSE) #calculate p-value
         cat("Note: For", x["Year"],", female Is value is numerator.\n") #cat description
   
   } else { #otherwise
   
         crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
         f <- x["Is (m)"]/x["Is (f)"] #use male estimate as numerator in f ratio
+        pvalue <- pf(f, df1 = df_m, df2 = df_f, lower.tail = FALSE) #calculate p-value
         cat("Note: For", x["Year"],", male Is value is numerator.\n") #cat description
   
   }
@@ -756,11 +758,11 @@ func_sex_comp <- function(x, output) { #function to be applied to each row
   #test whether male and female Is are significantly different by comparing F Ratio with critical value
   if(f > crit){ #if the f ratio is larger than the critical value
   
-        cat("For", x["Year"], ", male and female Is are different (F > critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 2), "\n", "Male Is: ", round(x["Is (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat statistical metrics and parameters
+        cat("For", x["Year"], ", male and female Is are different (F > critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 2), "\n", "Male Is: ", round(x["Is (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n", "p-value =", round(pvalue, digits = 2), "\n\n\n") #cat statistical metrics and parameters
   
   } else { #otherwise
   
-        cat("For", x["Year"], ", male and female Is are not different (F < critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 2), "\n", "Male Is: ", round(x["Is (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat statistical metrics and parameters
+        cat("For", x["Year"], ", male and female Is are not different (F < critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 2), "\n", "Male Is: ", round(x["Is (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n", "p-value =", round(pvalue, digits = 2), "\n\n\n") #cat statistical metrics and parameters
   
   } 
   
@@ -789,12 +791,14 @@ func_sel_comp <- function(x, output) { #function to be applied to each row
   
         crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
         f <- x["I (f)"]/x["I (m)"] #use female estimate as numerator in f ratio
+        pvalue <- pf(f, df1 = df_f, df2 = df_m, lower.tail = FALSE) #calculate p-value
         cat("Note: For", x["Year"],", female I value is numerator.\n") #cat description
   
   } else { #otherwise
   
         crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
         f <- x["I (m)"]/x["I (f)"] #use male estimate as numerator in f ratio
+        pvalue <- pf(f, df1 = df_m, df2 = df_f, lower.tail = FALSE) #calculate p-value
         cat("Note: For", x["Year"],", male I value is numerator.\n") #cat description
   
   }
@@ -802,11 +806,11 @@ func_sel_comp <- function(x, output) { #function to be applied to each row
   #test whether male and female I are significantly different by comparing F Ratio with critical value
   if(f > crit){ #if the f ratio is larger than the critical value
   
-        cat("For", x["Year"], ", male and female I are different (F > critical).", "\n", "Female I: ", round(x["I (f)"], digits = 2), "\n", "Male I: ", round(x["I (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat statistical metrics and parameters
+        cat("For", x["Year"], ", male and female I are different (F > critical).", "\n", "Female I: ", round(x["I (f)"], digits = 2), "\n", "Male I: ", round(x["I (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n", "P-value =", round(pvalue, digits = 2), "\n\n\n") #cat statistical metrics and parameters
   
   } else { #otherwise
   
-        cat("For", x["Year"], ", male and female I are not different (F < critical).", "\n", "Female I: ", round(x["I (f)"], digits = 2), "\n", "Male I: ", round(x["I (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n\n\n") #cat statistical metrics and parameters
+        cat("For", x["Year"], ", male and female I are not different (F < critical).", "\n", "Female I: ", round(x["I (f)"], digits = 2), "\n", "Male I: ", round(x["I (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n", "P-value =", round(pvalue, digits = 2), "\n\n\n") #cat statistical metrics and parameters
   
   } 
  
