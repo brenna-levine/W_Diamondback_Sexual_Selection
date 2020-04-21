@@ -928,3 +928,42 @@ cat("Male Standardized Bateman Gradient: ", round(Bss_m, digits = 3), "\n","Male
 
 ```
 
+Finally, I statistically compared the male and female Jones index (s'max).
+```{r}
+# degrees of freedom for females calculated as MEAN number of females per year - 1
+df_f <- mean(c_f$n)-1 #number of records per year are still stored in the c_f data frame
+df_f <- round(df_f, digits = 0) #round to the nearest integer
+
+## degrees of freedom for males calculated as MEAN number of males per year - 1
+df_m <- mean(c_m$n)-1  #number of records per year are still stored in c_m data frame
+df_m <- round(df_m, digits = 0) #round to the nearest integer
+
+#calculate F-ratio and critical value for s'max, again paying attention to whether males or females have the greater s'max value
+###note: Jones index is in units of SD, so had to convert to variances for F ratio test
+if((Jones_f^2) > (Jones_m^2)){ #if squared s'max is greater than squared male s'max
+  
+  crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
+  f <- (Jones_f^2)/(Jones_m^2) #use female estimate (squared) as numerator in f ratio
+   pvalue <- pf(f, df1 = df_f, df2 = df_m, lower.tail = FALSE) #calculate p-value
+  cat("Note: Female s'max (squared) value is numerator.\n\n") #cat description
+  
+} else { #otherwise
+  
+  crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
+  f <- (Jones_m^2)/(Jones_f^2) #use male estimate (squared) as numerator in f ratio
+   pvalue <- pf(f, df1 = df_m, df2 = df_f, lower.tail = FALSE) #calculate p-value
+  cat("Note: Male s'max (squared) value is numerator.\n\n") #cat description
+  
+}
+
+#test whether male and female s'max are significantly different by comparing F ratio to critical value
+if(f > crit){ #if the f ratio is larger than the critical value
+  
+  cat("Mean male and female s'max are different (F > critical).", "\n", "Male s'max: ", round(Jones_m, digits = 3), "\n", "Female s'max: ", round(Jones_f, digits = 3), "\n", "F-Ratio: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f, "\n", "P-value =", round(pvalue, digits = 3), "\n\n\n") #cat statistical metrics and parameters
+  
+} else { #otherwise
+  
+  cat("Mean male and female s'max are not different (F < critical).", "\n", "Male s'max: ", round(Jones_m, digits = 3), "\n", "Female s'max: ", round(Jones_f, digits = 3), "\n", "F-Ratio: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom:", df_f,"\n", "P-value =", round(pvalue, digits = 3), "\n\n\n" ) #cat statistical metrics and parameters
+  
+} 
+```
