@@ -1,9 +1,9 @@
 ---
 title: "Crotalus atrox Sexual Selection Analysis"
 output:
-  html_notebook: default
-  pdf_document: default
   word_document: default
+  pdf_document: default
+  html_notebook: default
 ---
 
 ###################################################################
@@ -186,7 +186,7 @@ summary(glm_female)
 Then, I extracted the female Bateman gradient from the model..
 ```{r}
 #print the female Bateman gradient, as extracted from the model coefficients
-cat("Female Bss (absolute): ", round(glm_female$coefficients[2], digits = 2), "\n")
+cat("Female Bss (absolute): ", round(glm_female$coefficients[2], digits = 3), "\n")
 ```
 
 Then, I tested for a significant effect of number of mates on number of offspring for females by removing mating success from the model with the drop1 function, and comparing the reduced model with a LLR test.
@@ -238,7 +238,7 @@ rm(glm_male)
 I extracted the male Bateman gradient from the model coefficients.
 ```{r}
 #cat the male Bateman gradient as extracted from the coefficients of the model
-cat("Male Bss (absolute): ", round(glm_male_nonzero$coefficients[2], digits = 2), "\n")
+cat("Male Bss (absolute): ", round(glm_male_nonzero$coefficients[2], digits = 3), "\n")
 ```
 
 
@@ -298,7 +298,7 @@ mean_mate_f <- mean(female[["mates"]])
 mean_off_f <- mean(female[["offspring"]])
 
 #cat mean number of mates and offspring for females
-cat("Female Mean Mating Success:", round(mean_mate_f, digits = 2), "\n","Female Mean Reproductive Success:", round(mean_off_f, digits = 2), "\n\n")
+cat("Female Mean Mating Success:", round(mean_mate_f, digits = 3), "\n","Female Mean Reproductive Success:", round(mean_off_f, digits = 3), "\n\n")
 
 #add relative mating and reproductive success to female data frame
 female$rel_mates <- female$mates/mean_mate_f #rel_mates = relative mating success added to data frame
@@ -316,7 +316,7 @@ mean_mate_m <- mean(male_nonzero[["mates"]])
 mean_off_m <- mean(male_nonzero[["offspring"]])
 
 #cat mean number of mates and offspring for males
-cat("Male Mean Mating Success:", round(mean_mate_m, digits = 2), "\n", "Male Mean Reproductive Success:", round(mean_off_m, digits = 2), "\n\n")
+cat("Male Mean Mating Success:", round(mean_mate_m, digits = 3), "\n", "Male Mean Reproductive Success:", round(mean_off_m, digits = 3), "\n\n")
 
 #add relative mating and reproductive success to male data frame
 male_nonzero$rel_mates <- male_nonzero$mates/mean_mate_m #rel_mates = relative mating success added to data frame
@@ -350,7 +350,7 @@ summary(glm_female)
 I extracted the standardized female Bss using relative values.
 ```{r}
 #cat the female standardized Bateman gradient as extracted from the model coefficients
-cat("Standardized Female Bss (relative): ", round(glm_female$coefficients[2], digits = 2), "\n")
+cat("Standardized Female Bss (relative): ", round(glm_female$coefficients[2], digits = 3), "\n")
 ```
 
 Then, I tested for a significant effect of relative number of mates on number of offspring for females by removing relative mating success from the model with the drop1 function, and comparing the reduced model with a LLR test.
@@ -382,7 +382,7 @@ summary(glm_male_nonzero)
 I extracted the standardized Bateman gradient for males from the model coefficients.
 ```{r}
 #cat the male standardized Bateman gradient as extracted from the model coefficients
-cat("Standardized Male Bateman Gradient (relative): ", round(glm_male_nonzero$coefficients[2], digits = 2), "\n")
+cat("Standardized Male Bateman Gradient (relative): ", round(glm_male_nonzero$coefficients[2], digits = 3), "\n")
 ```
 
 I tested the significance of relative number of mates in the model with drop1, as I did for females.
@@ -643,7 +643,7 @@ mean_Is_f <- mean(opp_sex_f$`Is (f)`) #mean opportunity for sexual selection
 mean_I_f <- mean(opp_sel_f$`I (f)`) #mean opportunity for selection
 
 #cat the means so we know what they are
-cat("Female Mean Is: ", round(mean_Is_f, digits = 2), "\n", "Female Mean I: ", round(mean_I_f, digits = 2), "\n\n")
+cat("Female Mean Is: ", round(mean_Is_f, digits = 3), "\n", "Female Mean I: ", round(mean_I_f, digits = 3), "\n\n")
 ```
 
 Then, for the male data frame, I automated a subsetting of the data frame to create subsets for each year with at least 3 data points. This is because we cannot calculate variance for years with fewer than 3 records. This is the same thing I did for females.
@@ -721,7 +721,7 @@ mean_Is_m <- mean(opp_sex_m$`Is (m)`) #mean opportunity for sexual selection
 mean_I_m <- mean(opp_sel_m$`I (m)`) #mean opportunity for selection
 
 #cat the means so we know what they are
-cat("Male Mean Is: ", round(mean_Is_m, digits = 2), "\n", "Male Mean I: ", round(mean_I_m, digits = 2), "\n\n")
+cat("Male Mean Is: ", round(mean_Is_m, digits = 3), "\n", "Male Mean I: ", round(mean_I_m, digits = 3), "\n\n")
 ```
 
 I statistically compared YEARLY male and female Is with an F-ratio test.
@@ -758,11 +758,11 @@ func_sex_comp <- function(x, output) { #function to be applied to each row
   #test whether male and female Is are significantly different by comparing F Ratio with critical value
   if(f > crit){ #if the f ratio is larger than the critical value
   
-        cat("For", x["Year"], ", male and female Is are different (F > critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 2), "\n", "Male Is: ", round(x["Is (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n", "p-value =", round(pvalue, digits = 2), "\n\n\n") #cat statistical metrics and parameters
+        cat("For", x["Year"], ", male and female Is are different (F > critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 3), "\n", "Male Is: ", round(x["Is (m)"], digits = 3), "\n", "F: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n", "p-value =", round(pvalue, digits = 3), "\n\n\n") #cat statistical metrics and parameters
   
   } else { #otherwise
   
-        cat("For", x["Year"], ", male and female Is are not different (F < critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 2), "\n", "Male Is: ", round(x["Is (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n", "p-value =", round(pvalue, digits = 2), "\n\n\n") #cat statistical metrics and parameters
+        cat("For", x["Year"], ", male and female Is are not different (F < critical).", "\n", "Female Is: ", round(x["Is (f)"], digits = 3), "\n", "Male Is: ", round(x["Is (m)"], digits = 3), "\n", "F: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n", "p-value =", round(pvalue, digits = 3), "\n\n\n") #cat statistical metrics and parameters
   
   } 
   
@@ -806,11 +806,11 @@ func_sel_comp <- function(x, output) { #function to be applied to each row
   #test whether male and female I are significantly different by comparing F Ratio with critical value
   if(f > crit){ #if the f ratio is larger than the critical value
   
-        cat("For", x["Year"], ", male and female I are different (F > critical).", "\n", "Female I: ", round(x["I (f)"], digits = 2), "\n", "Male I: ", round(x["I (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n", "P-value =", round(pvalue, digits = 2), "\n\n\n") #cat statistical metrics and parameters
+        cat("For", x["Year"], ", male and female I are different (F > critical).", "\n", "Female I: ", round(x["I (f)"], digits = 3), "\n", "Male I: ", round(x["I (m)"], digits = 3), "\n", "F: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n", "P-value =", round(pvalue, digits = 3), "\n\n\n") #cat statistical metrics and parameters
   
   } else { #otherwise
   
-        cat("For", x["Year"], ", male and female I are not different (F < critical).", "\n", "Female I: ", round(x["I (f)"], digits = 2), "\n", "Male I: ", round(x["I (m)"], digits = 2), "\n", "F: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n", "P-value =", round(pvalue, digits = 2), "\n\n\n") #cat statistical metrics and parameters
+        cat("For", x["Year"], ", male and female I are not different (F < critical).", "\n", "Female I: ", round(x["I (f)"], digits = 3), "\n", "Male I: ", round(x["I (m)"], digits = 3), "\n", "F: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Female Degrees of Freedom: ", df_f, "\n", "Male Degrees of Freedom: ", df_m, "\n", "P-value =", round(pvalue, digits = 3), "\n\n\n") #cat statistical metrics and parameters
   
   } 
  
@@ -850,11 +850,11 @@ if(mean_Is_f > mean_Is_m){ #if mean female Is is greater than mean male Is
 #test whether male and female Is are significantly different by comparing F ratio to critical value
 if(f > crit){ #if the f ratio is larger than the critical value
   
-  cat("Mean male and female Is are different (F > critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", round(mean_Is_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f, "\n", "P-value =", round(pvalue, digits = 2), "\n\n\n") #cat statistical metrics and parameters
+  cat("Mean male and female Is are different (F > critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 3), "\n", "Female Is: ", round(mean_Is_f, digits = 3), "\n", "F-Ratio: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f, "\n", "P-value =", round(pvalue, digits = 3), "\n\n\n") #cat statistical metrics and parameters
   
 } else { #otherwise
   
-  cat("Mean male and female Is are not different (F < critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 2), "\n", "Female Is: ", round(mean_Is_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom:", df_f,"\n", "P-value =", round(pvalue, digits = 2), "\n\n\n" ) #cat statistical metrics and parameters
+  cat("Mean male and female Is are not different (F < critical).", "\n", "Male Is: ", round(mean_Is_m, digits = 3), "\n", "Female Is: ", round(mean_Is_f, digits = 3), "\n", "F-Ratio: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom:", df_f,"\n", "P-value =", round(pvalue, digits = 3), "\n\n\n" ) #cat statistical metrics and parameters
   
 } 
 ```
@@ -883,11 +883,11 @@ if(mean_I_f > mean_I_m){ #if mean female I is greater than male I
 #test whether male and female Is are significantly different by comparing F ratio to critical value
 if(f > crit){ #if the f ratio is larger than the critical value
   
-  cat("Mean male and female I are different (F > critical).", "\n", "Male I: ", round(mean_I_m, digits = 2), "\n", "Female I: ", round(mean_I_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f,"\n", "P-value =", round(pvalue, digits = 2), "\n\n\n") #cat statistical metrics and parameters
+  cat("Mean male and female I are different (F > critical).", "\n", "Male I: ", round(mean_I_m, digits = 3), "\n", "Female I: ", round(mean_I_f, digits = 3), "\n", "F-Ratio: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f,"\n", "P-value =", round(pvalue, digits = 3), "\n\n\n") #cat statistical metrics and parameters
   
 } else { #otherwise
   
-  cat("Mean male and female I are not different (F < critical).", "\n", "Male I: ", round(mean_I_m, digits = 2), "\n", "Female I: ", round(mean_I_f, digits = 2), "\n", "F-Ratio: ", round(f, digits = 2), "\n", "Critical Value: ", round(crit, digits = 2), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f,"\n", "P-value =", round(pvalue, digits = 2), "\n\n\n") #cat statistical metrics and parameters
+  cat("Mean male and female I are not different (F < critical).", "\n", "Male I: ", round(mean_I_m, digits = 3), "\n", "Female I: ", round(mean_I_f, digits = 3), "\n", "F-Ratio: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f,"\n", "P-value =", round(pvalue, digits = 3), "\n\n\n") #cat statistical metrics and parameters
   
 } 
 ```
@@ -909,7 +909,7 @@ Bss_f <- as.numeric(coef_f[2])
 Jones_f <- Bss_f*sqrt(mean_Is_f)
 
 #cat the results of the analysis
-cat("Female Standardized Bateman Gradient: ", round(Bss_f, digits = 2), "\n","Female Mean Annual Opportunity for Sexual Selection: ", round(mean_Is_f, digits = 2), "\n","Square Root Mean Annual Female Is: ", round(sqrt(mean_Is_f), digits = 2), "\n","Female Jones Index: ", round(Jones_f, digits = 2))
+cat("Female Standardized Bateman Gradient: ", round(Bss_f, digits = 3), "\n","Female Mean Annual Opportunity for Sexual Selection: ", round(mean_Is_f, digits = 3), "\n","Square Root Mean Annual Female Is: ", round(sqrt(mean_Is_f), digits = 3), "\n","Female Jones Index: ", round(Jones_f, digits = 3))
 ```
 
 Then, I calculated the Jones index for males.
@@ -924,7 +924,7 @@ Bss_m <- as.numeric(coef_m[2])
 Jones_m <- Bss_m*sqrt(mean_Is_m)
 
 #cat the results of the analysis
-cat("Male Standardized Bateman Gradient: ", round(Bss_m, digits = 2), "\n","Male Mean Annual Opportunity for Sexual Selection: ", round(mean_Is_m, digits = 2), "\n","Square Root Mean Annual Male Is: ", round(sqrt(mean_Is_m), digits = 2), "\n","Male Jones Index: ", round(Jones_m, digits = 2))
+cat("Male Standardized Bateman Gradient: ", round(Bss_m, digits = 3), "\n","Male Mean Annual Opportunity for Sexual Selection: ", round(mean_Is_m, digits = 3), "\n","Square Root Mean Annual Male Is: ", round(sqrt(mean_Is_m), digits = 3), "\n","Male Jones Index: ", round(Jones_m, digits = 3))
 
 ```
 
