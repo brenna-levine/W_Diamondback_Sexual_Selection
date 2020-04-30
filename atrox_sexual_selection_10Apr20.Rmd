@@ -341,7 +341,7 @@ There was no evidence of a significant interaction between number of mates and n
 ```{r}
 #glm without interaction of fixed effects
 #Note: overwriting earlier female glm
-glm_female <- glm(rel_off ~ rel_mates + years_breeding, data=female, family=gaussian)
+glm_female <- glm(rel_off ~ rel_mates + years_breeding, data=female, family="gaussian")
 
 #view summary of glm
 summary(glm_female)
@@ -356,7 +356,7 @@ cat("Standardized Female Bss (relative): ", round(glm_female$coefficients[2], di
 Then, I tested for a significant effect of relative number of mates on number of offspring for females by removing relative mating success from the model with the drop1 function, and comparing the reduced model with a LLR test.
 ```{r}
 #use drop one function with chi-square statistic for LRT
-drop1(glm_female, test="Chisq")
+drop1(glm_female, test="LRT")
 ```
 
 For male data, I ran the GLM with an interaction between relative number of mates and the number of breeding years. I used a Gaussian probability distribution rather than Poisson, because data are no longer count data and are continuous.
@@ -938,6 +938,319 @@ df_f <- round(df_f, digits = 0) #round to the nearest integer
 df_m <- mean(c_m$n)-1  #number of records per year are still stored in c_m data frame
 df_m <- round(df_m, digits = 0) #round to the nearest integer
 
+#calculate F-ratio and critical value for s'max, again paying attention to whether males or females have the greater s'max value
+###note: Jones index is in units of SD, so had to convert to variances for F ratio test
+if((Jones_f^2) > (Jones_m^2)){ #if squared s'max is greater than squared male s'max
+  
+  crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
+  f <- (Jones_f^2)/(Jones_m^2) #use female estimate (squared) as numerator in f ratio
+   pvalue <- pf(f, df1 = df_f, df2 = df_m, lower.tail = FALSE) #calculate p-value
+  cat("Note: Female s'max (squared) value is numerator.\n\n") #cat description
+  
+} else { #otherwise
+  
+  crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
+  f <- (Jones_m^2)/(Jones_f^2) #use male estimate (squared) as numerator in f ratio
+   pvalue <- pf(f, df1 = df_m, df2 = df_f, lower.tail = FALSE) #calculate p-value
+  cat("Note: Male s'max (squared) value is numerator.\n\n") #cat description
+  
+}
+
+#test whether male and female s'max are significantly different by comparing F ratio to critical value
+if(f > crit){ #if the f ratio is larger than the critical value
+  
+  cat("Mean male and female s'max are different (F > critical).", "\n", "Male s'max: ", round(Jones_m, digits = 3), "\n", "Female s'max: ", round(Jones_f, digits = 3), "\n", "F-Ratio: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f, "\n", "P-value =", round(pvalue, digits = 3), "\n\n\n") #cat statistical metrics and parameters
+  
+} else { #otherwise
+  
+  cat("Mean male and female s'max are not different (F < critical).", "\n", "Male s'max: ", round(Jones_m, digits = 3), "\n", "Female s'max: ", round(Jones_f, digits = 3), "\n", "F-Ratio: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom:", df_f,"\n", "P-value =", round(pvalue, digits = 3), "\n\n\n" ) #cat statistical metrics and parameters
+  
+} 
+```
+
+.....................................................................
+.....................................................................
+
+To have a fair comparison with other pitvipers, I reanalyzed the copperhead data of Levine et al. (2015) in the same way. Levine et al. (2015) found a significant male Bateman gradient, but included males with zero reproductive success. Here, I analyzed the data without those zero values and using the same probability distributions as for the C. atrox.
+
+First, I cleared the memory and loaded the copperhead data file.
+```{r}
+#clear memory
+rm(list=ls())
+
+#load csv file
+bateman <- read.csv("copperheads.csv")
+```
+
+
+Next, I subset the data frame by males and females, and then I subset the male data frame to retain only those males with non-zero mating and reproductive success. 
+```{r}
+####subset data
+#subset data frame and make new female data frame
+female <- subset(bateman, sex=='f')
+
+#subset data frame and make new male data frame
+male <- subset(bateman, sex=='m')
+
+#subset new male data frame and make male data frame without zero values
+male_nonzero <- subset(male, mates > 0)
+```
+
+I ran a glm with a Poisson probability distribution on the male data set without zero values. Note: the copperhead data set did not have males that produced offspring in multiple years, so there is no covariate of number of breeding years in this model.
+```{r}
+#glm 
+glm_male_nonzero <- glm(offspring ~ mates, data=male_nonzero, family=poisson)
+
+#view summary of glm
+summary(glm_male_nonzero)
+```
+
+Then, I tested for a significant effect of number of mates on number of offspring for males with non-zero mating and reproductive success by removing mating success from the model with the drop1 function, and comparing the reduced model with a LLR test.
+```{r}
+#use drop one function with chi-square statistic for LRT
+drop1(glm_male_nonzero, test="Chisq")
+```
+There is a significant effect of mating success on reproductive success for male copperheads (as was previously found by Levine et al. 2015).
+
+Similarly, I also re-ran the female glm for copperheads using the Poisson distribution.
+```{r}
+#glm
+glm_female <- glm(offspring ~ mates, data=female, family=poisson)
+
+#view summary of glm
+summary(glm_female)
+```
+
+I used the drop1 function to test the significance of mating success on female reproductive success.
+```{r}
+#use drop one function with chi-square statistic for LRT
+drop1(glm_female, test="Chisq")
+```
+There is no significant effect of mating success on reproductive success for female copperheads (as was previously found by Levine et al. 2015).
+
+Then, I calculated standardized Bateman gradients for male and female copperheads (using only non-zero data for males) to facilitate calculation of the Jones Index.
+
+First, I had to calculate relative mating and reproductive success for both sexes.
+```{r}
+###########  females
+#calculate mean number of mates for females
+mean_mate_f <- mean(female[["mates"]])
+
+#calculate mean number of offspring for females
+mean_off_f <- mean(female[["offspring"]])
+
+#add relative mating and reproductive success to female data frame
+female$rel_mates <- female$mates/mean_mate_f #rel_mates = relative mating success added to data frame
+female$rel_off <- female$offspring/mean_off_f #rel_off = relative reproductive success added to data frame
+
+#view the first few rows of the new data frame to confirm new columns are there
+head(female)
+cat("\n\n") #cat some new lines
+
+###########  males
+#calculate mean number of mates for males
+mean_mate_m <- mean(male_nonzero[["mates"]])
+
+#calculate mean number of offspring for males
+mean_off_m <- mean(male_nonzero[["offspring"]])
+
+#add relative mating and reproductive success to male data frame
+male_nonzero$rel_mates <- male_nonzero$mates/mean_mate_m #rel_mates = relative mating success added to data frame
+male_nonzero$rel_off <- male_nonzero$offspring/mean_off_m #rel_off = relative reproductive success added to data frame
+
+#cat the first few rows of the new data frame to confirm new columns are there
+head(male_nonzero)
+cat("\n\n") #cat some new lines
+```
+
+I ren-ran the glm for male copperheads using relative data.
+```{r}
+#glm
+#Note: overwriting the earlier male glm
+glm_male_nonzero <- glm(rel_off ~ rel_mates, data=male_nonzero, family=gaussian)
+
+#view summary of glm
+summary(glm_male_nonzero)
+```
+
+I used the drop1 function to test for a significant effect of relative mating success in the male_nonzero model.
+```{r}
+#use drop one function with chi-square statistic for LRT
+drop1(glm_male_nonzero, test="Chisq")
+```
+Male relative mating success is marginally significant in the model (0.05083).
+
+I extracted the male standardized Bateman gradient for calculation of the Jones index.
+```{r}
+#cat the male standardized Bateman gradient as extracted from the model coefficients
+cat("Standardized Male Bateman Gradient (relative): ", round(glm_male_nonzero$coefficients[2], digits = 3), "\n")
+```
+
+Next, I ran the glm for females using relative data.
+```{r}
+#glm
+#Note: overwriting the earlier female glm
+glm_female <- glm(rel_off ~ rel_mates, data=female, family=gaussian)
+
+#view summary of glm
+summary(glm_female)
+```
+
+I tested significance of female relative mating success in the model using the drop1 function.
+```{r}
+#use drop one function with chi-square statistic for LRT
+drop1(glm_female, test="Chisq")
+```
+Female relative mating success does not have a significant effect on relative reproductive success in copperheads.
+
+I extracted the standardized Bateman gradient for females.
+```{r}
+#cat the male standardized Bateman gradient as extracted from the model coefficients
+cat("Standardized Female Bateman Gradient (relative): ", round(glm_female$coefficients[2], digits = 3), "\n")
+```
+
+Then, I compared male and female opportunities for sexual selection and selection, using only males that produced offspring.
+
+First, I calculated male and female Is and I for copperheads.
+```{r}
+#calculate female opportunity for sexual selection
+variance <- var(female$mates) #calculate the variance in MS
+x <- mean(female$mates) #calculate the mean in MS
+meansq <- x^2 #calculate the squared mean of MS
+female_Is <- variance/meansq #calculate opportunity for sexual selection
+
+#calculate female opportunity for selection
+variance <- var(female$offspring) #calculate the variance in RS
+x <- mean(female$offspring) #calculate the mean in RS
+meansq <- x^2 #calculate the squared mean of RS
+female_I <- variance/meansq #calculate opportunity for selection
+
+#calculate male opportunity for sexual selection
+variance <- var(male_nonzero$mates) #calculate the variance in MS
+x <- mean(male_nonzero$mates) #calculate the mean in MS
+meansq <- x^2 #calculate the squared mean of MS
+male_Is <- variance/meansq #calculate opportunity for sexual selection
+
+#calculate male opportunity for selection
+variance <- var(male_nonzero$offspring) #calculate the variance in RS
+x <- mean(male_nonzero$offspring) #calculate the mean in RS
+meansq <- x^2 #calculate the squared mean of RS
+male_I <- variance/meansq #calculate opportunity for selection
+
+```
+
+Then, I calculated degrees of freedom for males and females.
+```{r}
+#degrees of freedom for males
+df_m <- nrow(male_nonzero) - 1
+
+#degrees of freedom for females 
+df_f <- nrow(female) - 1
+
+#make degrees of freedom numeric
+df_m <- as.numeric(df_m)
+df_f <- as.numeric(df_f)
+```
+
+I statistically compared male and female Is for copperheads with an F-ratio test.
+```{r}
+#calculate F-ratio and critical value for Is, paying attention to whether males or females have the greater Is value
+if(female_Is > male_Is){ #if female Is is greater than male Is
+  
+  crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
+  f <- female_Is/male_Is #use female estimate as numerator in f ratio
+   pvalue <- pf(f, df1 = df_f, df2 = df_m, lower.tail = FALSE) #calculate p-value
+  cat("Note: Female Is value is numerator.\n\n") #cat description
+  
+} else { #otherwise
+  
+  crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
+  f <- male_Is/female_Is #use male estimate as numerator in f ratio
+   pvalue <- pf(f, df1 = df_m, df2 = df_f, lower.tail = FALSE) #calculate p-value
+  cat("Note: Male Is value is numerator.\n\n") #cat description
+  
+}
+
+#test whether male and female Is are significantly different by comparing F ratio to critical value
+if(f > crit){ #if the f ratio is larger than the critical value
+  
+  cat("Mean male and female Is are different (F > critical).", "\n", "Male Is: ", round(male_Is, digits = 3), "\n", "Female Is: ", round(female_Is, digits = 3), "\n", "F-Ratio: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f, "\n", "P-value =", round(pvalue, digits = 3), "\n\n\n") #cat statistical metrics and parameters
+  
+} else { #otherwise
+  
+  cat("Mean male and female Is are not different (F < critical).", "\n", "Male Is: ", round(male_Is, digits = 3), "\n", "Female Is: ", round(female_Is, digits = 3), "\n", "F-Ratio: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom:", df_f,"\n", "P-value =", round(pvalue, digits = 3), "\n\n\n" ) #cat statistical metrics and parameters
+  
+} 
+```
+
+Then, I statistically compared male and female I for copperheads with an F-ratio test.
+```{r}
+#calculate F-ratio and critical value for I, paying attention to whether males or females have the greater Is value
+if(female_I > male_I){ #if female I is greater than male I
+  
+  crit <- qf(0.95, df1 = df_f, df2 = df_m) # use female df as df1 in calculation of critical value
+  f <- female_I/male_I #use female estimate as numerator in f ratio
+   pvalue <- pf(f, df1 = df_f, df2 = df_m, lower.tail = FALSE) #calculate p-value
+  cat("Note: Female I value is numerator.\n\n") #cat description
+  
+} else { #otherwise
+  
+  crit <- qf(0.95, df1 = df_m, df2 = df_f) # use male df as df1 in calculation of critical value
+  f <- male_I/female_I #use male estimate as numerator in f ratio
+   pvalue <- pf(f, df1 = df_m, df2 = df_f, lower.tail = FALSE) #calculate p-value
+  cat("Note: Male I value is numerator.\n\n") #cat description
+  
+}
+
+#test whether male and female I are significantly different by comparing F ratio to critical value
+if(f > crit){ #if the f ratio is larger than the critical value
+  
+  cat("Mean male and female I are different (F > critical).", "\n", "Male I: ", round(male_I, digits = 3), "\n", "Female I: ", round(female_I, digits = 3), "\n", "F-Ratio: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom: ", df_f, "\n", "P-value =", round(pvalue, digits = 3), "\n\n\n") #cat statistical metrics and parameters
+  
+} else { #otherwise
+  
+  cat("Mean male and female I are not different (F < critical).", "\n", "Male I: ", round(male_I, digits = 3), "\n", "Female I: ", round(female_I, digits = 3), "\n", "F-Ratio: ", round(f, digits = 3), "\n", "Critical Value: ", round(crit, digits = 3), "\n", "Male Degrees of Freedom: ", df_m, "\n", "Female Degrees of Freedom:", df_f,"\n", "P-value =", round(pvalue, digits = 3), "\n\n\n" ) #cat statistical metrics and parameters
+  
+} 
+```
+
+Finally, I calculated the Jones Index (s'max) for male and female copperheads, using only males that produced offspring.
+
+First, I calculated the Jones Index for males.
+```{r}
+#run glm with relative mating and reproductive success and extract coefficients
+coef_m <- coef(glm(rel_off ~ rel_mates, data=male_nonzero, family=gaussian))
+
+#extract Bss from coefficients
+Bss_m <- as.numeric(coef_m[2])
+
+#calculate Jones index
+Jones_m <- Bss_m*sqrt(male_Is)
+
+#cat the results of the analysis
+cat("Male Standardized Bateman Gradient: ", round(Bss_m, digits = 3), "\n","Male Opportunity for Sexual Selection: ", round(male_Is, digits = 3), "\n","Square Root Male Is: ", round(sqrt(male_Is), digits = 3), "\n","Male Jones Index: ", round(Jones_m, digits = 3))
+
+```
+
+Then, I calculated the Jones Index for females.
+```{r}
+#run glm with relative mating and reproductive success and extract coefficients
+coef_f <- coef(glm(rel_off ~ rel_mates, data=female, family=gaussian))
+
+#extract Bss from coefficients
+Bss_f <- as.numeric(coef_f[2])
+
+#calculate Jones index
+Jones_f <- Bss_f*sqrt(female_Is)
+
+#cat the results of the analysis
+cat("Female Standardized Bateman Gradient: ", round(Bss_f, digits = 3), "\n","Female Opportunity for Sexual Selection: ", round(female_Is, digits = 3), "\n","Square Root Female Is: ", round(sqrt(female_Is), digits = 3), "\n","Female Jones Index: ", round(Jones_f, digits = 3))
+
+```
+
+Finally, I statistically compared the male and female Jones Indexes using an F-ratio test.
+```{r}
+#use same degrees of freedom calculated above.
 #calculate F-ratio and critical value for s'max, again paying attention to whether males or females have the greater s'max value
 ###note: Jones index is in units of SD, so had to convert to variances for F ratio test
 if((Jones_f^2) > (Jones_m^2)){ #if squared s'max is greater than squared male s'max
