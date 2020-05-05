@@ -1,5 +1,5 @@
 ---
-title: "Crotalus atrox Sexual Selection Analysis"
+title: "*Crotalus atrox* Sexual Selection Analysis"
 output:
   word_document: default
   pdf_document: default
@@ -8,9 +8,9 @@ output:
 
 ###################################################################
 
-This R Notebook details analyses for the Western Diamondback Rattlesnake (Crotalus atrox) sexual selection study (Levine et al. in prep). Raw data were originally collected, analyzed, and reported by Clark et al. 2014.
+This R Notebook details analyses for a study of sexual selection in the Western diamond-backed rattlesnake (*Crotalus atrox*) sexual selection study (Levine *et al*., in review). Raw data were originally collected, analyzed, and reported by Clark *et al*. 2014.
 
-All data files analyzed and the R Notebook are also housed at https://github.com/brenna-levine/W_Diamondback_Sexual_Selection.
+All data files analyzed and the R Notebook are also stored at https://github.com/brenna-levine/W_Diamondback_Sexual_Selection.
 
 .......................................................................
 .......................................................................
@@ -22,7 +22,7 @@ bateman <- read.csv("atrox_bateman_comparison_4feb20.csv")
 ```
 
 
-Next, I subset the data to a female set, a male set that included zero mating and reproductive success, and a male set that did not include zero mating and reproductive success. The reason for analyzing non-zero male data is that I (BAL) was worried about the natural dependency of reproductive success on mating success (if mating success = 0, reproductive success has to equal 0). This dependency will be particularly important for calculations of the Bateman gradient that include number of breeding years as a covariate. If number of mates is zero, number of breeding years will also be zero, and therefore we will be basically guaranteed to have a significant interaction between mating success and number of breeding years that will make it impossible to evaluate the effect of number of mates and number of breeding years without considering the interaction between the two. This differs from Levine et al. (2015), but given the long-term nature of this data set (with individuals mating over time in multiple years) as opposed to the short-term nature of Levine et al. (2015), it's necessary.
+Next, I subset the data to a female set, a male set that included zero mating and reproductive success, and a male set that did not include zero mating and reproductive success. The reason for analyzing non-zero male data is that I (BAL) was worried about the natural dependency of reproductive success on mating success (if mating success = 0, reproductive success has to equal 0). This dependency will be particularly important for calculations of the Bateman gradient that include number of breeding years as a covariate. If number of mates is zero, number of breeding years will also be zero, and therefore we will be basically guaranteed to have a significant interaction between mating success and number of breeding years that will make it impossible to evaluate the effect of number of mates and number of breeding years without considering the interaction between the two. This differs from Levine *et al*. (2015), but given the long-term nature of this data set (with individuals mating over time in multiple years) as opposed to the short-term nature of Levine *et al*. (2015), it's necessary.
 ```{r}
 ####subset data
 #subset data frame and make new female data frame
@@ -281,7 +281,7 @@ There is no evidence of overdispersion for either model.
 ................................................................................................
 ................................................................................................
 
-All analyses were repeated using relative mating success and relative reproductive success so as to quantify standardized Bateman gradients (as in Henshaw et al. 2016).
+All analyses were repeated using relative mating success and relative reproductive success so as to quantify standardized Bateman gradients (as in Henshaw *et al*. 2016).
 
 First, I calculated mean mating and reproductive success for each sex. Then, I divided each individual's mating and reproductive success by their respective means to calculate relative mating and reproductive success and added these new values in two new columns to the respective data frame for each sex.
 ```{r}
@@ -966,7 +966,7 @@ if(f > crit){ #if the f ratio is larger than the critical value
 .....................................................................
 .....................................................................
 
-To have a fair comparison with other pitvipers, I reanalyzed the copperhead data of Levine et al. (2015) in the same way. Levine et al. (2015) found a significant male Bateman gradient, but included males with zero reproductive success. Here, I analyzed the data without those zero values and using the same probability distributions as for the C. atrox.
+To have a fair comparison with other pitvipers, I reanalyzed the copperhead (*Agkistrodon contortrix*) data of Levine *et al*. (2015) in the same way. Levine *et al*. (2015) found a significant male Bateman gradient, but included males with zero reproductive success. Here, I analyzed the data without those zero values and using the same probability distributions as for the *C. atrox*.
 
 First, I cleared the memory and loaded the copperhead data file.
 ```{r}
@@ -1005,7 +1005,7 @@ Then, I tested for a significant effect of number of mates on number of offsprin
 #use drop one function with chi-square statistic for LRT
 drop1(glm_male_nonzero, test="Chisq")
 ```
-There is a significant effect of mating success on reproductive success for male copperheads (as was previously found by Levine et al. 2015).
+There is a significant effect of mating success on reproductive success for male copperheads (as was previously found by Levine *et al*. 2015).
 
 Similarly, I also re-ran the female glm for copperheads using the Poisson distribution.
 ```{r}
@@ -1021,7 +1021,7 @@ I used the drop1 function to test the significance of mating success on female r
 #use drop one function with chi-square statistic for LRT
 drop1(glm_female, test="Chisq")
 ```
-There is no significant effect of mating success on reproductive success for female copperheads (as was previously found by Levine et al. 2015).
+There is no significant effect of mating success on reproductive success for female copperheads (as was previously found by Levine *et al*. 2015).
 
 Then, I calculated standardized Bateman gradients for male and female copperheads (using only non-zero data for males) to facilitate calculation of the Jones Index.
 
