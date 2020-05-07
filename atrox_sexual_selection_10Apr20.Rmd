@@ -1,15 +1,15 @@
 ---
 title: "*Crotalus atrox* Sexual Selection Analysis"
 output:
-  html_notebook: default
-  pdf_document: default
   word_document: default
+  pdf_document: default
+  html_notebook: default
 ---
 
 #**Overview**
 This R Notebook details analyses for a study of sexual selection in the Western diamond-backed rattlesnake (*Crotalus atrox*) sexual selection study (Levine *et al*., in review). Raw data were originally collected, analyzed, and reported by Clark *et al*. 2014.
 
-All data files analyzed and the R Notebook are also stored at **https://github.com/brenna-levine/W_Diamondback_Sexual_Selection**.
+All data files analyzed and the R Notebook are also stored at https://github.com/brenna-levine/W_Diamondback_Sexual_Selection.
 
 ###**1. Data Exploration**
 First, I loaded the data file
