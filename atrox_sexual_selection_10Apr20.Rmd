@@ -376,7 +376,7 @@ library(extrafont)
 tiff(file="female_Bateman.tiff", width=6, height=4, units="in", res=100)
 
 #plot RRS against StSVL using ggplot for females
-ggplot(female, aes(x=mates, y=offspring)) + geom_point(size=2) + theme_classic() + labs(x="Mating Sucess", y="Reproductive Success") + theme(axis.title.x = element_text(size=14, family = "Arial"), axis.title.y = element_text(size=14, family = "Arial"), axis.text = element_text(size=12, family = "Arial")) 
+ggplot(female, aes(x=mates, y=offspring)) + geom_point(size=2) + theme_classic() + labs(x="Mating Success", y="Reproductive Success") + theme(axis.title.x = element_text(size=14, family = "Arial"), axis.title.y = element_text(size=14, family = "Arial"), axis.text = element_text(size=12, family = "Arial")) 
 
 #over-ride graphics device
 dev.off()
@@ -385,7 +385,7 @@ dev.off()
 tiff(file="male_Bateman.tiff", width=6, height=4, units="in", res=100)
 
 #plot RRS against StSVL using ggplot for males
-ggplot(male_nonzero, aes(x=mates, y=offspring)) + geom_point(size=2) + theme_classic() + labs(x="Mating Sucess", y="Reproductive Success") + theme(axis.title.x = element_text(size=14, family = "Arial"), axis.title.y = element_text(size=14, family = "Arial"), axis.text = element_text(size=12, family = "Arial")) 
+ggplot(male_nonzero, aes(x=mates, y=offspring)) + geom_point(size=2) + theme_classic() + labs(x="Mating Success", y="Reproductive Success") + theme(axis.title.x = element_text(size=14, family = "Arial"), axis.title.y = element_text(size=14, family = "Arial"), axis.text = element_text(size=12, family = "Arial")) 
 
 #over-ride graphics device
 dev.off()
