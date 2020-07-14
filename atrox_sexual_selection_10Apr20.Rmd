@@ -163,6 +163,13 @@ glm_female <- glm(offspring ~ mates + years_breeding, data=female, family=poisso
 #view summary of glm
 summary(glm_female)
 ```
+I tested for collinearity between number of breeding years and number of mates in the reduced female data set:
+```{r}
+#load caret
+library(car)
+round(vif(glm_female), digits = 3)
+```
+
 Then, I extracted the female Bateman gradient from the model..
 ```{r}
 #print the female Bateman gradient, as extracted from the model coefficients
@@ -183,6 +190,12 @@ glm_male <- glm(offspring ~ mates*years_breeding, data=male, family=poisson)
 #view glm summary
 summary(glm_male)
 ```
+```{r}
+#use drop1 to do LRT with chi-square
+drop1(glm_male, test="Chisq")
+```
+
+
 As expected given the dependency I describe above (and the large number of zeros in this data set), there was a significant interaction between number of mates and number of breeding years. However, this interaction disappears if I only use the **non-zero male** data for the GLM.
 ```{r}
 #glm of non-zero male data set with interaction between fixed effects
@@ -200,6 +213,12 @@ glm_male_nonzero <- glm(offspring ~ mates + years_breeding, data=male_nonzero, f
 #view summary of glm
 summary(glm_male_nonzero)
 ```
+I tested for collinearity between mating success and number of breeding years for males.
+```{r}
+round(vif(glm_male_nonzero), digits = 3)
+```
+
+
 **Quick sidebar**: I also removed the data files for males with zeros so as to not get confused later.
 ```{r}
 #remove unnecessary data files
